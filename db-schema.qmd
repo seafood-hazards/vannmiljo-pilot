@@ -1,0 +1,13 @@
+---
+title: "DB Schema"
+subtitle: A proposed database design based on Vannmilijø Data 
+---
+
+The page shows the database schema diagram along with table definitions based on the Vannmilijø dataset.
+
+## DB Schema Diagram
+The proposed database design shown in the ER (Entity Relationship) diagram below contains six tables including three meta (entity) tables, one variable (look-up or reference) table, one fact (measurement) table, and one mixed meta and measurement table.
+
+The columns with `PK` in the diagram indicate primary keys of the table, which guarantees unique identifications.
+
+![](./image/vannmilijo_db.webp){.zoomable}

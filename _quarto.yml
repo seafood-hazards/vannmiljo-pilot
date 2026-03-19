@@ -2,19 +2,28 @@ project:
   type: website
 
 website:
-  title: "pilot-db-with-vannmilijo"
+  title: "Pilot DB with Mareano"
   navbar:
+    search: true
     left:
-      - href: index.qmd
-        text: Home
+      - text: "Home"
+        href: index.qmd
+      - text: "DB Design"
+        menu:
+          - text: "DB Schema"
+            href: db-schema.qmd
 
 format:
   html:
+    include-in-header: header.html
     theme:
       - cosmo
       - brand
     css: styles.css
     toc: true
+    df-print: kable
 
-
-
+execute:
+  echo: false
+  warning: false
+  message: false
