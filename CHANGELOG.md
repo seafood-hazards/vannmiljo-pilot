@@ -6,6 +6,10 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-03-22
+### Fixed
+- Activity summary table removed 
+
 ## [0.1.4] - 2026-03-22
 ### Added
 - DT count talbe in the landing page
