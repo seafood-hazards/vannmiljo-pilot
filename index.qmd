@@ -24,6 +24,43 @@ This site presents the initial version of the database design and its potential 
  * Molybden
  * Selen
 
+### Count of Sampling Sites
+The table below summarizes the number of sampling sites documented across 27 activities and projects between 1975 and 2025.
+
+```{r}
+library(tidyverse)
+library(DT)
+
+# 1. Define the URL for the data file
+data_file_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.1/pilot_vannmiljo.tsv.gz"
+local_data_file_name <- "pilot_vannmiljo.tsv.gz"
+
+# 2. Download Logic
+if (!file.exists(local_data_file_name)) {
+  options(timeout = 600)
+  download.file(data_file_url, destfile = local_data_file_name, mode = "wb")
+  message("Database downloaded.")
+} else {
+  message("Using existing local database.")
+}
+
+df_vannmiljo_sediment <- read_tsv(local_data_file_name)
+df_counts <- df_vannmiljo_sediment %>%
+  distinct(activity_id, activity_name, site_code, site_name, sample_time, param_name) %>%
+  mutate(year = year(sample_time)) %>%
+  count(activity_id, activity_name, year, param_name) %>%
+  pivot_wider(names_from = param_name, values_from = n) %>%
+  replace(is.na(.), 0) %>%
+  mutate(activity_id = factor(activity_id),
+         activity_name = factor(activity_name)) %>%
+  rename(`Activity ID` = activity_id,
+         `Activity Name` = activity_name,
+         Year = year)
+
+datatable(df_counts, filter = "top", rownames = FALSE, class = "nowrap", options = list(scrollX = TRUE))
+
+```
+
 ## Activities Covered by Vannmiljø
 
 The Vannmiljø dataset contains sediment data for six chemical parameters from the following 27 activities and projects:
