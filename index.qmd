@@ -61,18 +61,6 @@ datatable(df_counts, filter = "top", rownames = FALSE, class = "nowrap", options
 
 ```
 
-## Activities Covered by Vannmiljø
-
-The Vannmiljø dataset contains sediment data for six chemical parameters from the following 27 activities and projects:
-
-```{r}
-library(readr)
-library(dplyr)
-
-read_tsv("./.data/vannmiljo_activities.tsv.gz") %>%
-  mutate(across(where(is.numeric), ~ replace(., is.na(.), 0)))
-```
-
 ## Database Design and Creation
 
 After creating the ER (Entity–Relationship) diagram, the tables were implemented in a single SQLite file containing 10 tables. All required data were extracted from the Vannmiljø export file and imported into the corresponding tables.
