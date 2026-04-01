@@ -1,0 +1,304 @@
+---
+title: "Sediment Particle Size Fractions"
+subtitle: "From raw grain-size measurements to standardised fractions"
+---
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+```
+
+## Overview
+
+Marine sediment cores collected as part of this project were analysed for grain-size
+distribution. The raw data report particle abundance as percentages across a variety
+of size classes and aggregate measures.
+
+```{r}
+tibble(
+  Fraction = c("Clay", "Silt", "Sand", "Gravel"),
+  `Size range` = c("< 2 µm", "2 – 63 µm", "63 – 2000 µm", "> 2000 µm"),
+  Description = c(
+    "Very fine particles, high surface area",
+    "Fine particles, settles slowly",
+    "Medium particles comprising five sub-fractions (63–125, 125–250, 250–500, 500–1000, 1000–2000 µm)",
+    "Coarse particles > 2 mm; typically minor in open marine settings"
+  )
+) |>
+  kable(align = c("l", "l", "l")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE)
+```
+
+---
+
+## Data Quality Issues
+
+### 1. Non-standard measurement operators
+
+Not all measurements are simple point estimates. Each value in the source data is
+accompanied by an operator describing its relationship to the true value:
+
+```{r}
+tibble(
+  Operator = c("=", "<", ">"),
+  Meaning = c(
+    "Exact measurement",
+    "Below detection or quantification limit",
+    "Exceeds the upper measurement range (lower bound only)"
+  ),
+  `Treatment` = c(
+    "Used as-is",
+    "Replaced with half the reported value (mid-point convention)",
+    "Used as-is (treated as a measured lower bound)"
+  )
+) |>
+  kable() |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE)
+```
+
+### 2. Decimal-point errors
+
+Values well above 100 % were present in the source data, most likely caused by decimal
+points being omitted or misplaced during data entry in spreadsheet software. For
+example, a true value of 45.9 % was recorded as 45903.
+
+### 3. Overlapping and redundant parameters
+
+The source data contain both aggregate parameters and their constituent sub-fractions
+for the same sample:
+
+- **Fines < 63 µm** (`FINS`) is the sum of Clay + Silt, but some samples report
+  FINS alongside separate Clay and Silt measurements, double-counting that portion.
+- **Coarse > 63 µm** (`GSMF_63`) is similarly redundant when individual sand
+  sub-fractions or a gravel measurement are also present.
+
+Including both aggregate and component values inflates the apparent total well beyond
+100 % and prevents straightforward fraction conversion.
+
+---
+
+## Processing Pipeline
+
+The data are processed in six sequential steps. Each step feeds directly into the next.
+
+### Step 0: Operator adjustment
+
+Measurement operators are resolved into usable numeric values using the conventions
+shown in the table above. All subsequent steps operate on these adjusted values.
+
+### Step 0b: Decimal-point correction
+
+For each parameter, a background median is computed from all valid values (i.e. those
+already in the range 0–100 %). Values exceeding 100 % are then corrected by dividing
+by successive powers of ten (10, 100, 1000, …) and selecting the candidate that is
+both ≤ 100 % and closest to that parameter's background median. Values that cannot be
+recovered this way are set to missing and flagged.
+
+### Step 0c: Overlap removal and rescaling
+
+Redundant aggregate parameters are removed from any sample where their components are
+also present. Specifically:
+
+- `FINS` is dropped if either `GSMF2` (Clay) or `GSMF2_63` (Silt) is present.
+- `GSMF_63` is dropped if any sand sub-fraction or `GSMF_2000` (Gravel) is present.
+
+After deduplication, the remaining values for each sample are summed. If the total
+exceeds 100 %, all values are rescaled proportionally so that the sample sums to
+exactly 100 %.
+
+### Step 1: Wide-format restructuring
+
+The cleaned long-format data are pivoted to wide format, giving one row per
+sample × sediment layer with columns for each grain-size parameter and its operator.
+
+### Step 2: Arithmetic derivation (four passes)
+
+The four target fractions are derived algebraically from whichever measurements are
+available, without using any background statistics. The derivation exploits the
+following constraints.
+
+ * **Clay** + **Silt** = **Fines**
+ * **Sand** + **Gravel** = **Coarse**
+ * **Fines** + **Coarse** = *100%*
+
+Four passes are made in order:
+
+| Pass | Action |
+|------|--------|
+| 1 | Assign directly measured values |
+| 2a | Compute group totals (Fines or Coarse) from the sum of their components |
+| 2b | Derive a missing component by subtracting the known one from the group total |
+| 3 | Apply the 100 % constraint to derive the missing group total |
+| 4 | Repeat Pass 2b using group totals that became available in Pass 3 |
+
+This resolves the vast majority of combinations present in the dataset without
+any assumptions about the sediment composition.
+
+### Step 3:  Background ratio estimation
+
+For samples that arithmetic derivation could not fully resolve, background ratios are
+estimated from all samples where both components of a group are arithmetically known:
+
+$$r_\text{clay/fines} = \text{median}\!\left(\frac{\text{Clay}}{\text{Clay} + \text{Silt}}\right)$$
+$$\qquad r_\text{gravel/coarse} = \text{median}\!\left(\frac{\text{Gravel}}{\text{Sand} + \text{Gravel}}\right)$$
+
+A set of overall background proportions (Clay : Silt : Sand : Gravel) is also
+derived from samples where all four fractions are known, for use as a final fallback.
+
+### Step 4: Within-group background splits
+
+If a group total (Fines or Coarse) is known but *neither* of its components could be
+derived arithmetically, the group total is split using the background ratios from Step 3.
+
+### Step 5: General background imputation
+
+Any fraction still unknown after Steps 2–4 is assigned a share of the remaining
+percentage budget (100 % minus the sum of known fractions). The share is proportional
+to that fraction's background weight. Fractions already resolved are **never modified**
+at this stage.
+
+---
+
+## Quality Confidence Flag
+
+Every sample receives a single `qc_confidence` rating based on accumulated penalty
+points from the three pre-processing steps.
+
+```{r}
+tibble(
+  Source = c(
+    "Sum of fractions 100–101 % (minor rounding)",
+    "Sum of fractions 101–110 % (moderate conflict)",
+    "Sum of fractions 110–200 % (serious conflict)",
+    "Sum of fractions > 200 % (likely multiple errors)",
+    "Decimal-point correction applied (Step 0b)",
+    "Redundant aggregate removed (Step 0c)"
+  ),
+  `Penalty points` = c("+1", "+2", "+3", "+4", "+1", "+1")
+) |>
+  kable(align = c("l", "c")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE)
+```
+
+```{r}
+tibble(
+  `Total penalty` = c("0", "1", "2", "3", "4 or more"),
+  `qc_confidence` = c("high", "medium", "low", "very_low", "unreliable"),
+  Interpretation = c(
+    "No data quality issues detected",
+    "One minor issue (e.g. rounding-only excess or one decimal correction)",
+    "Two minor or one moderate issue",
+    "Substantial conflict in the original data; values corrected by rescaling",
+    "Severe conflict; results may not be reliable"
+  )
+) |>
+  kable(align = c("c", "l", "l")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE) |>
+  row_spec(5, bold = TRUE, color = "#8B0000")
+```
+
+Researchers are encouraged to filter on `qc_confidence` according to the requirements
+of their analysis. A common starting point is to retain `"high"` and `"medium"` samples
+for quantitative work, and to inspect `"low"` samples on a case-by-case basis.
+
+---
+
+## Derivation Method Labels
+
+In addition to the confidence flag, each of the four output fractions carries a label
+describing how it was derived:
+
+```{r}
+tibble(
+  Method = c("direct", "arithmetic", "background"),
+  Meaning = c(
+    "The fraction was measured directly in the original data",
+    "The fraction was calculated from other measurements using mass-balance arithmetic (no assumptions about composition)",
+    "At least one background ratio or overall proportion was required to estimate this fraction"
+  )
+) |>
+  kable() |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = FALSE)
+```
+
+---
+
+## Data Availability
+
+A tab-delimited files containing particle fractions is available for download at the following location.
+
+ * [pilot_vannmiljo_particles.tsv.gz](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.5/pilot_vannmiljo_particles.tsv.gz)
+
+### Column Definition
+
+The final exported dataset contains one row per sample × sediment layer. The columns
+are described below.
+
+```{r}
+tibble(
+  Column = c(
+    "sample_id",
+    "sediment_no",
+    "clay_pct",
+    "silt_pct",
+    "sand_pct",
+    "gravel_pct",
+    "total_pct",
+    "clay_method",
+    "silt_method",
+    "sand_method",
+    "gravel_method",
+    "any_op_adjusted",
+    "qc_confidence"
+  ),
+  Type = c(
+    "character",
+    "integer",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "numeric",
+    "character",
+    "character",
+    "character",
+    "character",
+    "logical",
+    "factor"
+  ),
+  Description = c(
+    "Unique sample identifier, linking to the broader dataset",
+    "Sediment layer number within the core (1 = topmost measured layer)",
+    "Clay fraction (< 2 µm), as a percentage of the total sediment",
+    "Silt fraction (2–63 µm), as a percentage",
+    "Sand fraction (63–2000 µm), as a percentage",
+    "Gravel fraction (> 2000 µm), as a percentage",
+    "Sum of the four fractions; equals 100 % for all fully processed samples",
+    "Derivation method for clay: 'direct', 'arithmetic', or 'background'",
+    "Derivation method for silt",
+    "Derivation method for sand",
+    "Derivation method for gravel",
+    "TRUE if any input measurement had a non-exact operator (i.e. '<', '>', or 'ND')",
+    "Data quality confidence level: 'high', 'medium', 'low', 'very_low', or 'unreliable'"
+  )
+) |>
+  kable(align = c("l", "l", "l")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE) |>
+  column_spec(1, bold = TRUE, monospace = TRUE) |>
+  column_spec(2, monospace = TRUE)
+```
+
+::: {.callout-note}
+Fractions estimated using background ratios (method = `"background"`) are model-derived and carry more
+uncertainty than directly measured or arithmetically derived values. The `qc_confidence`
+column summarises the overall reliability of each row and should be the primary filter
+applied before analysis.
+:::
+

@@ -29,7 +29,7 @@ table {
 #| output: false
 
 # 1. Define the URL for the SQLite file
-db_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.1/pilot_vannmiljo.sqlite"
+db_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.5/pilot_vannmiljo.sqlite"
 local_db_name <- "pilot_vannmiljo.sqlite"
 
 # 2. Download Logic
