@@ -1,51 +1,45 @@
 ---
 title: "Data Export"
-subtitle: A dataset file exported from the pilot database
+subtitle: Dataset files exported from the pilot database
 ---
 
-The data file was created for the initial analysis using the Vannmiljø data.
+Three data files were created for the initial analysis using the Vannmiljø data.
 
 ## Data Availability
 
-A tab-delimited file containing all major data from the database is available for download at the following location.
+Three tab-delimited files containing all major data from the database, particle fractions, and major data plus particle fractions are available for download at the following location.
 
- * [pilot_vannmiljo.tsv.gz](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.1/pilot_vannmiljo.tsv.gz)
+ * [pilot_vannmiljo_all.tsv.gz](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.4/pilot_vannmiljo_all.tsv.gz)
+ * [pilot_vannmiljo_particles.tsv.gz](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.4/pilot_vannmiljo_particles.tsv.gz)
+ * [pilot_vannmiljo_pivoted_particles.tsv.gz](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.4/pilot_vannmiljo_pivoted_particles.tsv.gz)
 
-## Data File Summary
+::: {.callout-important}
+The `pilot_vannmiljo_pivoted_particles.tsv.gz` file is the recommended starting point for sediment chemistry analyses.
+:::
 
-The file `pilot_vannmiljo.tsv.gz` is a denormalized (flat) export of the relational database, designed to facilitate immediate analysis without requiring complex SQL joins.
+## All Major Data
 
-## Column Definition
+The file `pilot_vannmiljo_all.tsv.gz` is a denormalized (flat) export of the relational database, designed to facilitate immediate analysis without requiring complex SQL joins.
+
+### Column Definition
 
 ```{r}
+#| echo: false
 library(tibble)
+library(kableExtra)
 
-# Definition of the exported TSV columns and their sources
-exported_columns_tbl <- tibble(
+tibble(
   `Column Name` = c(
-    # Activity Metadata
     "activity_id", "activity_name",
-
-    # Site Metadata
     "site_code", "site_name", "lon", "lat", "dist_to_coast",
     "country", "country_code", "municipality", "sea_name",
-
-    # Sample Metadata
     "sample_time", "upper_depth", "lower_depth", "sample_no", "n_values",
-
-    # Parameter Metadata
     "param_id", "param_name",
-
-    # Methods
     "method", "analysis",
-
-    # Chemistry / Measurement Data
     "value", "unit", "operator",
-
-    # Limits of Detection/Quantification
-    "lod", "loq"
+    "lod", "loq",
+    "category"
   ),
-
   `Source Table` = c(
     "Activity", "Activity",
     "Site", "Site", "Site", "Site", "Site",
@@ -54,9 +48,9 @@ exported_columns_tbl <- tibble(
     "Parameter", "Parameter",
     "Sample Method", "Analysis Method",
     "Sediment", "Analysis Method", "Sediment",
-    "LLD (Filtered)", "LLD (Filtered)"
+    "LLD (Filtered)", "LLD (Filtered)",
+    "Parameter (Categorized)"
   ),
-
   `Description` = c(
     "Unique identifier for the activity/monitoring program",
     "Name of the activity or monitoring program",
@@ -82,9 +76,106 @@ exported_columns_tbl <- tibble(
     "Unit of measurement for the value",
     "Mathematical operator (e.g., <, =) indicating if value is below detection limits",
     "Limit of Detection (LOD) value",
-    "Limit of Quantification (LOQ) value"
+    "Limit of Quantification (LOQ) value",
+    "Parameter category: efsa (EFSA elements), other (Other elements), tcs (Total sulfur and carbon), p (Particle fractions)"
   )
-)
-
-exported_columns_tbl
+) |>
+  kable(align = c("l", "l", "l")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE) |>
+  column_spec(1, bold = TRUE, monospace = TRUE)
 ```
+
+## Conversion Result of Particle Fractions
+
+The file `pilot_vannmiljo_particles.tsv.gz` contains the particle size conversion results. For a full description of the conversion methodology, see the [Sediment Particle Size Fractions](sediment-fractions.qmd) page.
+
+### Column Definition
+
+```{r}
+#| echo: false
+tibble(
+  Column = c(
+    "sample_id", "sediment_no",
+    "clay_pct", "silt_pct", "sand_pct", "gravel_pct", "total_pct",
+    "clay_method", "silt_method", "sand_method", "gravel_method",
+    "any_op_adjusted", "qc_confidence"
+  ),
+  Type = c(
+    "character", "integer",
+    "numeric", "numeric", "numeric", "numeric", "numeric",
+    "character", "character", "character", "character",
+    "logical", "factor"
+  ),
+  Description = c(
+    "Unique sample identifier, linking to the broader dataset",
+    "Sediment layer number within the core (1 = topmost measured layer)",
+    "Clay fraction (< 2 µm), as a percentage of the total sediment",
+    "Silt fraction (2–63 µm), as a percentage",
+    "Sand fraction (63–2000 µm), as a percentage",
+    "Gravel fraction (> 2000 µm), as a percentage",
+    "Sum of the four fractions; equals 100 % for all fully processed samples",
+    "Derivation method for clay: 'direct', 'arithmetic', or 'background'",
+    "Derivation method for silt",
+    "Derivation method for sand",
+    "Derivation method for gravel",
+    "TRUE if any input measurement had a non-exact operator (i.e. '<', '>', or 'ND')",
+    "Data quality confidence level: 'high', 'medium', 'low', 'very_low', or 'unreliable'"
+  )
+) |>
+  kable(align = c("l", "l", "l")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE) |>
+  column_spec(1, bold = TRUE, monospace = TRUE) |>
+  column_spec(2, monospace = TRUE)
+```
+
+::: {.callout-note}
+Fractions estimated using background ratios (method = `"background"`) are model-derived and carry more
+uncertainty than directly measured or arithmetically derived values. The `qc_confidence`
+column summarises the overall reliability of each row and should be the primary filter
+applied before analysis.
+:::
+
+## Major Data with Particle Fractions
+
+The file `pilot_vannmiljo_pivoted_particles.tsv.gz` is a combined dataset that merges the major data with the derived particle size fractions. It contains all rows from `pilot_vannmiljo_all.tsv.gz` where `category != "p"` (i.e. all chemical and other measurements, excluding the raw particle fraction rows), with the four derived grain-size fractions and their quality flag appended as additional columns. 
+
+### Column Definition
+
+The file contains all columns from `pilot_vannmiljo_all.tsv.gz` (see above), plus the five additional columns below.
+
+```{r}
+#| echo: false
+tibble(
+  Column = c(
+    "clay_pct", "silt_pct", "sand_pct", "gravel_pct",
+    "total_pct",
+    "particle_qc_confidence"
+  ),
+  Type = c(
+    "numeric", "numeric", "numeric", "numeric",
+    "numeric",
+    "factor"
+  ),
+  Description = c(
+    "Clay fraction (< 2 µm) derived from particle size analysis, as a percentage",
+    "Silt fraction (2–63 µm), as a percentage",
+    "Sand fraction (63–2000 µm), as a percentage",
+    "Gravel fraction (> 2000 µm), as a percentage",
+    "Sum of the four fractions; equals 100 % for all fully processed samples",
+    "Data quality confidence level for the particle fractions: 'high', 'medium', 'low', 'very_low', or 'unreliable'. NA if no particle size data are available for that sample."
+  )
+) |>
+  kable(align = c("l", "l", "l")) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE) |>
+  column_spec(1, bold = TRUE, monospace = TRUE) |>
+  column_spec(2, monospace = TRUE)
+```
+
+::: {.callout-note}
+Particle fraction columns will be `NA` for samples that have no associated grain-size
+measurements. The `particle_qc_confidence` column should be used to filter rows before
+any analysis that depends on sediment texture.
+:::

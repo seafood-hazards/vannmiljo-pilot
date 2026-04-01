@@ -12,7 +12,7 @@ website:
         menu:
           - text: "DB Schema"
             href: db-schema.qmd
-          - text: "DB Schema"
+          - text: "Data Preparation"
             href: data-preparation.qmd
       - text: "Geospatial Analysis"
         menu:
@@ -24,6 +24,8 @@ website:
             href: distance-interactive-map.qmd
       - text: "Data Export"
         menu:
+          - text: "Sediment Fractions"
+            href: sediment-fractions.qmd
           - text: "Export to Tabular File"
             href: data-export.qmd
       - text: "Tools"

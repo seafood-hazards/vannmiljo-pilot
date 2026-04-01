@@ -17,12 +17,10 @@ This site presents the initial version of the database design and its potential 
 
 #### Parameter
 
- * Kobber
- * Sink
- * Mangan
- * Kobolt
- * Molybden
- * Selen
+ * EFSA elements (Kobber, Sink, Mangan, Kobolt, Molybden, Selen)
+ * Other elements
+ * Carbon content and total sulfur
+ * Particle sizes
 
 ### Count of Sampling Sites
 The table below summarizes the number of sampling sites documented across 27 activities and projects between 1975 and 2025.
@@ -32,8 +30,8 @@ library(tidyverse)
 library(DT)
 
 # 1. Define the URL for the data file
-data_file_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.1/pilot_vannmiljo.tsv.gz"
-local_data_file_name <- "pilot_vannmiljo.tsv.gz"
+data_file_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.4/pilot_vannmiljo_all.tsv.gz"
+local_data_file_name <- "pilot_vannmiljo_all.tsv.gz"
 
 # 2. Download Logic
 if (!file.exists(local_data_file_name)) {
@@ -80,7 +78,8 @@ To facilitate efficient core and sample selection, distances to the nearest coas
 
 Data can be exported for both exploration and submission purposes.
 
-- See the [Export to Tabular File](./data-export.qmd) page for a description of a single tabular file format (`.tsv.gz`) that is extracted and merged from all database tables for data exploration.
+- See the [Sediment Particle Size Fractions](./sediment-fractions.qmd) page for a description of the conversion from raw grain-size measurements to standardised sediment particle fractions.
+- See the [Export to Tabular File](./data-export.qmd) page for descriptions of three tabular files (`.tsv.gz`) that are extracted and merged from all database tables for data exploration.
 
 ## Tools
 
