@@ -11,3 +11,4 @@
 *.sqlite
 /pilot_vannmiljo.tsv.gz
 /pilot_vannmiljo_all.tsv.gz
+/libs/
