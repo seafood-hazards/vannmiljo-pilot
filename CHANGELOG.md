@@ -6,6 +6,10 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-04-11
+### Changed
+- sql interface from sqljs to stratum toolset
+
 ## [0.1.9] - 2026-04-11
 ### Changed
 - sql interface from sqljs to stratum toolset
