@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Sediment Particle Size Fractions – Vannmiljø Pilot</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-4897d45d2f75ed4f519693be625836c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<!-- Load Font Awesome from CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+/* Modal background */
+.img-modal {
+  display: none; position: fixed; z-index: 9999; padding-top: 40px;
+  left: 0; top: 0; width: 100%; height: 100%;
+  overflow: auto; background-color: rgba(0,0,0,0.85);
+}
+.img-modal-content {
+  margin: auto; display: block;
+  max-width: 90%; max-height: 90%; border-radius: 6px;
+}
+.img-modal-close {
+  position: absolute; top: 20px; right: 35px;
+  color: #fff; font-size: 40px; font-weight: bold; cursor: pointer;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const modal = document.createElement("div");
+  modal.className = "img-modal";
+  modal.innerHTML = `
+    <span class="img-modal-close">&times;</span>
+    <img class="img-modal-content" id="img-modal-img">
+  `;
+  document.body.appendChild(modal);
+
+  const modalImg = document.getElementById("img-modal-img");
+  const closeBtn = modal.querySelector(".img-modal-close");
+
+  document.querySelectorAll("img.zoomable").forEach(img => {
+    img.style.cursor = "zoom-in";
+    img.addEventListener("click", () => {
+      modal.style.display = "block";
+      modalImg.src = img.src;
+    });
+  });
+
+  closeBtn.onclick = () => modal.style.display = "none";
+  modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+});
+</script>
+
+<!-- stratum-sqlite initialisation
+     Detects the page depth from Quarto's site_libs/ script so this works
+     for pages at any subdirectory level without hardcoding paths. -->
+<script>
+(function () {
+  var siteLibScript = document.querySelector('script[src*="site_libs/"]');
+  var root = siteLibScript
+    ? siteLibScript.getAttribute('src').replace(/site_libs\/.*$/, '')
+    : '';
+
+  window._sqljsBase = root + 'libs/sqljs/';
+  window._dbPath    = root + 'pilot_vannmiljo.sqlite';
+
+  // import() requires an absolute URL — a bare relative path like
+  // "libs/sqljs/stratum-sqlite.esm.js" throws "bare specifier" error.
+  // new URL() resolves the relative path against the current page URL,
+  // producing a full absolute https:// URL that import() accepts.
+  var esmUrl = new URL(window._sqljsBase + 'stratum-sqlite.esm.js',
+                       window.location.href).href;
+
+  window._stratumSQLite = import(esmUrl)
+    .then(function (m) { return m.default; });
+}());
+</script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Vannmiljø Pilot</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-db-design" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">DB Design</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-db-design">    
+        <li>
+    <a class="dropdown-item" href="./db-schema.html">
+ <span class="dropdown-text">DB Schema</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./data-preparation.html">
+ <span class="dropdown-text">Data Preparation</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-geospatial-analysis" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Geospatial Analysis</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-geospatial-analysis">    
+        <li>
+    <a class="dropdown-item" href="./distance-to-coast.html">
+ <span class="dropdown-text">Distance to Coast</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./location-names.html">
+ <span class="dropdown-text">Location Names</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./distance-interactive-map.html">
+ <span class="dropdown-text">Interactive Map</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-export" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Export</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-export">    
+        <li>
+    <a class="dropdown-item" href="./sediment-fractions.html">
+ <span class="dropdown-text">Sediment Fractions</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./data-export.html">
+ <span class="dropdown-text">Export to Tabular File</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tools" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tools</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tools">    
+        <li>
+    <a class="dropdown-item" href="./pilot-db-viewer.html">
+ <span class="dropdown-text">Pilot DB Viewer</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#data-quality-issues" id="toc-data-quality-issues" class="nav-link" data-scroll-target="#data-quality-issues">Data Quality Issues</a>
+  <ul class="collapse">
+  <li><a href="#non-standard-measurement-operators" id="toc-non-standard-measurement-operators" class="nav-link" data-scroll-target="#non-standard-measurement-operators">1. Non-standard measurement operators</a></li>
+  <li><a href="#decimal-point-errors" id="toc-decimal-point-errors" class="nav-link" data-scroll-target="#decimal-point-errors">2. Decimal-point errors</a></li>
+  <li><a href="#overlapping-and-redundant-parameters" id="toc-overlapping-and-redundant-parameters" class="nav-link" data-scroll-target="#overlapping-and-redundant-parameters">3. Overlapping and redundant parameters</a></li>
+  </ul></li>
+  <li><a href="#processing-pipeline" id="toc-processing-pipeline" class="nav-link" data-scroll-target="#processing-pipeline">Processing Pipeline</a>
+  <ul class="collapse">
+  <li><a href="#step-0-operator-adjustment" id="toc-step-0-operator-adjustment" class="nav-link" data-scroll-target="#step-0-operator-adjustment">Step 0: Operator adjustment</a></li>
+  <li><a href="#step-0b-decimal-point-correction" id="toc-step-0b-decimal-point-correction" class="nav-link" data-scroll-target="#step-0b-decimal-point-correction">Step 0b: Decimal-point correction</a></li>
+  <li><a href="#step-0c-overlap-removal-and-rescaling" id="toc-step-0c-overlap-removal-and-rescaling" class="nav-link" data-scroll-target="#step-0c-overlap-removal-and-rescaling">Step 0c: Overlap removal and rescaling</a></li>
+  <li><a href="#step-1-wide-format-restructuring" id="toc-step-1-wide-format-restructuring" class="nav-link" data-scroll-target="#step-1-wide-format-restructuring">Step 1: Wide-format restructuring</a></li>
+  <li><a href="#step-2-arithmetic-derivation-four-passes" id="toc-step-2-arithmetic-derivation-four-passes" class="nav-link" data-scroll-target="#step-2-arithmetic-derivation-four-passes">Step 2: Arithmetic derivation (four passes)</a></li>
+  <li><a href="#step-3-background-ratio-estimation" id="toc-step-3-background-ratio-estimation" class="nav-link" data-scroll-target="#step-3-background-ratio-estimation">Step 3: Background ratio estimation</a></li>
+  <li><a href="#step-4-within-group-background-splits" id="toc-step-4-within-group-background-splits" class="nav-link" data-scroll-target="#step-4-within-group-background-splits">Step 4: Within-group background splits</a></li>
+  <li><a href="#step-5-general-background-imputation" id="toc-step-5-general-background-imputation" class="nav-link" data-scroll-target="#step-5-general-background-imputation">Step 5: General background imputation</a></li>
+  </ul></li>
+  <li><a href="#quality-confidence-flag" id="toc-quality-confidence-flag" class="nav-link" data-scroll-target="#quality-confidence-flag">Quality Confidence Flag</a></li>
+  <li><a href="#derivation-method-labels" id="toc-derivation-method-labels" class="nav-link" data-scroll-target="#derivation-method-labels">Derivation Method Labels</a></li>
+  <li><a href="#data-availability" id="toc-data-availability" class="nav-link" data-scroll-target="#data-availability">Data Availability</a>
+  <ul class="collapse">
+  <li><a href="#column-definition" id="toc-column-definition" class="nav-link" data-scroll-target="#column-definition">Column Definition</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Sediment Particle Size Fractions</h1>
+<p class="subtitle lead">From raw grain-size measurements to standardised fractions</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>Marine sediment cores collected as part of this project were analysed for grain-size distribution. The raw data report particle abundance as percentages across a variety of size classes and aggregate measures.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Fraction</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Size range</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Clay</td>
+<td style="text-align: left;">&lt; 2 µm</td>
+<td style="text-align: left;">Very fine particles, high surface area</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Silt</td>
+<td style="text-align: left;">2 – 63 µm</td>
+<td style="text-align: left;">Fine particles, settles slowly</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sand</td>
+<td style="text-align: left;">63 – 2000 µm</td>
+<td style="text-align: left;">Medium particles comprising five sub-fractions (63–125, 125–250, 250–500, 500–1000, 1000–2000 µm)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Gravel</td>
+<td style="text-align: left;">&gt; 2000 µm</td>
+<td style="text-align: left;">Coarse particles &gt; 2 mm; typically minor in open marine settings</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="data-quality-issues" class="level2">
+<h2 class="anchored" data-anchor-id="data-quality-issues">Data Quality Issues</h2>
+<section id="non-standard-measurement-operators" class="level3">
+<h3 class="anchored" data-anchor-id="non-standard-measurement-operators">1. Non-standard measurement operators</h3>
+<p>Not all measurements are simple point estimates. Each value in the source data is accompanied by an operator describing its relationship to the true value:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Operator</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Meaning</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">=</td>
+<td style="text-align: left;">Exact measurement</td>
+<td style="text-align: left;">Used as-is</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">&lt;</td>
+<td style="text-align: left;">Below detection or quantification limit</td>
+<td style="text-align: left;">Replaced with half the reported value (mid-point convention)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">&gt;</td>
+<td style="text-align: left;">Exceeds the upper measurement range (lower bound only)</td>
+<td style="text-align: left;">Used as-is (treated as a measured lower bound)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="decimal-point-errors" class="level3">
+<h3 class="anchored" data-anchor-id="decimal-point-errors">2. Decimal-point errors</h3>
+<p>Values well above 100 % were present in the source data, most likely caused by decimal points being omitted or misplaced during data entry in spreadsheet software. For example, a true value of 45.9 % was recorded as 45903.</p>
+</section>
+<section id="overlapping-and-redundant-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="overlapping-and-redundant-parameters">3. Overlapping and redundant parameters</h3>
+<p>The source data contain both aggregate parameters and their constituent sub-fractions for the same sample:</p>
+<ul>
+<li><strong>Fines &lt; 63 µm</strong> (<code>FINS</code>) is the sum of Clay + Silt, but some samples report FINS alongside separate Clay and Silt measurements, double-counting that portion.</li>
+<li><strong>Coarse &gt; 63 µm</strong> (<code>GSMF_63</code>) is similarly redundant when individual sand sub-fractions or a gravel measurement are also present.</li>
+</ul>
+<p>Including both aggregate and component values inflates the apparent total well beyond 100 % and prevents straightforward fraction conversion.</p>
+<hr>
+</section>
+</section>
+<section id="processing-pipeline" class="level2">
+<h2 class="anchored" data-anchor-id="processing-pipeline">Processing Pipeline</h2>
+<p>The data are processed in six sequential steps. Each step feeds directly into the next.</p>
+<section id="step-0-operator-adjustment" class="level3">
+<h3 class="anchored" data-anchor-id="step-0-operator-adjustment">Step 0: Operator adjustment</h3>
+<p>Measurement operators are resolved into usable numeric values using the conventions shown in the table above. All subsequent steps operate on these adjusted values.</p>
+</section>
+<section id="step-0b-decimal-point-correction" class="level3">
+<h3 class="anchored" data-anchor-id="step-0b-decimal-point-correction">Step 0b: Decimal-point correction</h3>
+<p>For each parameter, a background median is computed from all valid values (i.e.&nbsp;those already in the range 0–100 %). Values exceeding 100 % are then corrected by dividing by successive powers of ten (10, 100, 1000, …) and selecting the candidate that is both ≤ 100 % and closest to that parameter’s background median. Values that cannot be recovered this way are set to missing and flagged.</p>
+</section>
+<section id="step-0c-overlap-removal-and-rescaling" class="level3">
+<h3 class="anchored" data-anchor-id="step-0c-overlap-removal-and-rescaling">Step 0c: Overlap removal and rescaling</h3>
+<p>Redundant aggregate parameters are removed from any sample where their components are also present. Specifically:</p>
+<ul>
+<li><code>FINS</code> is dropped if either <code>GSMF2</code> (Clay) or <code>GSMF2_63</code> (Silt) is present.</li>
+<li><code>GSMF_63</code> is dropped if any sand sub-fraction or <code>GSMF_2000</code> (Gravel) is present.</li>
+</ul>
+<p>After deduplication, the remaining values for each sample are summed. If the total exceeds 100 %, all values are rescaled proportionally so that the sample sums to exactly 100 %.</p>
+</section>
+<section id="step-1-wide-format-restructuring" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-wide-format-restructuring">Step 1: Wide-format restructuring</h3>
+<p>The cleaned long-format data are pivoted to wide format, giving one row per sample × sediment layer with columns for each grain-size parameter and its operator.</p>
+</section>
+<section id="step-2-arithmetic-derivation-four-passes" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-arithmetic-derivation-four-passes">Step 2: Arithmetic derivation (four passes)</h3>
+<p>The four target fractions are derived algebraically from whichever measurements are available, without using any background statistics. The derivation exploits the following constraints.</p>
+<ul>
+<li><strong>Clay</strong> + <strong>Silt</strong> = <strong>Fines</strong></li>
+<li><strong>Sand</strong> + <strong>Gravel</strong> = <strong>Coarse</strong></li>
+<li><strong>Fines</strong> + <strong>Coarse</strong> = <em>100%</em></li>
+</ul>
+<p>Four passes are made in order:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 42%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pass</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Assign directly measured values</td>
+</tr>
+<tr class="even">
+<td>2a</td>
+<td>Compute group totals (Fines or Coarse) from the sum of their components</td>
+</tr>
+<tr class="odd">
+<td>2b</td>
+<td>Derive a missing component by subtracting the known one from the group total</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>Apply the 100 % constraint to derive the missing group total</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>Repeat Pass 2b using group totals that became available in Pass 3</td>
+</tr>
+</tbody>
+</table>
+<p>This resolves the vast majority of combinations present in the dataset without any assumptions about the sediment composition.</p>
+</section>
+<section id="step-3-background-ratio-estimation" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-background-ratio-estimation">Step 3: Background ratio estimation</h3>
+<p>For samples that arithmetic derivation could not fully resolve, background ratios are estimated from all samples where both components of a group are arithmetically known:</p>
+<p><span class="math display">\[r_\text{clay/fines} = \text{median}\!\left(\frac{\text{Clay}}{\text{Clay} + \text{Silt}}\right)\]</span> <span class="math display">\[\qquad r_\text{gravel/coarse} = \text{median}\!\left(\frac{\text{Gravel}}{\text{Sand} + \text{Gravel}}\right)\]</span></p>
+<p>A set of overall background proportions (Clay : Silt : Sand : Gravel) is also derived from samples where all four fractions are known, for use as a final fallback.</p>
+</section>
+<section id="step-4-within-group-background-splits" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-within-group-background-splits">Step 4: Within-group background splits</h3>
+<p>If a group total (Fines or Coarse) is known but <em>neither</em> of its components could be derived arithmetically, the group total is split using the background ratios from Step 3.</p>
+</section>
+<section id="step-5-general-background-imputation" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-general-background-imputation">Step 5: General background imputation</h3>
+<p>Any fraction still unknown after Steps 2–4 is assigned a share of the remaining percentage budget (100 % minus the sum of known fractions). The share is proportional to that fraction’s background weight. Fractions already resolved are <strong>never modified</strong> at this stage.</p>
+<hr>
+</section>
+</section>
+<section id="quality-confidence-flag" class="level2">
+<h2 class="anchored" data-anchor-id="quality-confidence-flag">Quality Confidence Flag</h2>
+<p>Every sample receives a single <code>qc_confidence</code> rating based on accumulated penalty points from the three pre-processing steps.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Source</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Penalty points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Sum of fractions 100–101 % (minor rounding)</td>
+<td style="text-align: center;">+1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sum of fractions 101–110 % (moderate conflict)</td>
+<td style="text-align: center;">+2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sum of fractions 110–200 % (serious conflict)</td>
+<td style="text-align: center;">+3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sum of fractions &gt; 200 % (likely multiple errors)</td>
+<td style="text-align: center;">+4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Decimal-point correction applied (Step 0b)</td>
+<td style="text-align: center;">+1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Redundant aggregate removed (Step 0c)</td>
+<td style="text-align: center;">+1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Total penalty</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">qc_confidence</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">high</td>
+<td style="text-align: left;">No data quality issues detected</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">medium</td>
+<td style="text-align: left;">One minor issue (e.g. rounding-only excess or one decimal correction)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">low</td>
+<td style="text-align: left;">Two minor or one moderate issue</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3</td>
+<td style="text-align: left;">very_low</td>
+<td style="text-align: left;">Substantial conflict in the original data; values corrected by rescaling</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center; font-weight: bold; color: rgba(139, 0, 0, 255) !important;">4 or more</td>
+<td style="text-align: left; font-weight: bold; color: rgba(139, 0, 0, 255) !important;">unreliable</td>
+<td style="text-align: left; font-weight: bold; color: rgba(139, 0, 0, 255) !important;">Severe conflict; results may not be reliable</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Researchers are encouraged to filter on <code>qc_confidence</code> according to the requirements of their analysis. A common starting point is to retain <code>"high"</code> and <code>"medium"</code> samples for quantitative work, and to inspect <code>"low"</code> samples on a case-by-case basis.</p>
+<hr>
+</section>
+<section id="derivation-method-labels" class="level2">
+<h2 class="anchored" data-anchor-id="derivation-method-labels">Derivation Method Labels</h2>
+<p>In addition to the confidence flag, each of the four output fractions carries a label describing how it was derived:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Method</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">direct</td>
+<td style="text-align: left;">The fraction was measured directly in the original data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">arithmetic</td>
+<td style="text-align: left;">The fraction was calculated from other measurements using mass-balance arithmetic (no assumptions about composition)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">background</td>
+<td style="text-align: left;">At least one background ratio or overall proportion was required to estimate this fraction</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="data-availability" class="level2">
+<h2 class="anchored" data-anchor-id="data-availability">Data Availability</h2>
+<p>A tab-delimited files containing particle fractions is available for download at the following location.</p>
+<ul>
+<li><a href="https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.5/pilot_vannmiljo_particles.tsv.gz">pilot_vannmiljo_particles.tsv.gz</a></li>
+</ul>
+<section id="column-definition" class="level3">
+<h3 class="anchored" data-anchor-id="column-definition">Column Definition</h3>
+<p>The final exported dataset contains one row per sample × sediment layer. The columns are described below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Column</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Type</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">sample_id</td>
+<td style="text-align: left; font-family: monospace;">character</td>
+<td style="text-align: left;">Unique sample identifier, linking to the broader dataset</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">sediment_no</td>
+<td style="text-align: left; font-family: monospace;">integer</td>
+<td style="text-align: left;">Sediment layer number within the core (1 = topmost measured layer)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">clay_pct</td>
+<td style="text-align: left; font-family: monospace;">numeric</td>
+<td style="text-align: left;">Clay fraction (&lt; 2 µm), as a percentage of the total sediment</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">silt_pct</td>
+<td style="text-align: left; font-family: monospace;">numeric</td>
+<td style="text-align: left;">Silt fraction (2–63 µm), as a percentage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">sand_pct</td>
+<td style="text-align: left; font-family: monospace;">numeric</td>
+<td style="text-align: left;">Sand fraction (63–2000 µm), as a percentage</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">gravel_pct</td>
+<td style="text-align: left; font-family: monospace;">numeric</td>
+<td style="text-align: left;">Gravel fraction (&gt; 2000 µm), as a percentage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">total_pct</td>
+<td style="text-align: left; font-family: monospace;">numeric</td>
+<td style="text-align: left;">Sum of the four fractions; equals 100 % for all fully processed samples</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">clay_method</td>
+<td style="text-align: left; font-family: monospace;">character</td>
+<td style="text-align: left;">Derivation method for clay: 'direct', 'arithmetic', or 'background'</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">silt_method</td>
+<td style="text-align: left; font-family: monospace;">character</td>
+<td style="text-align: left;">Derivation method for silt</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">sand_method</td>
+<td style="text-align: left; font-family: monospace;">character</td>
+<td style="text-align: left;">Derivation method for sand</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">gravel_method</td>
+<td style="text-align: left; font-family: monospace;">character</td>
+<td style="text-align: left;">Derivation method for gravel</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">any_op_adjusted</td>
+<td style="text-align: left; font-family: monospace;">logical</td>
+<td style="text-align: left;">TRUE if any input measurement had a non-exact operator (i.e. '&lt;', '&gt;', or 'ND')</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; font-family: monospace;">qc_confidence</td>
+<td style="text-align: left; font-family: monospace;">factor</td>
+<td style="text-align: left;">Data quality confidence level: 'high', 'medium', 'low', 'very_low', or 'unreliable'</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fractions estimated using background ratios (method = <code>"background"</code>) are model-derived and carry more uncertainty than directly measured or arithmetically derived values. The <code>qc_confidence</code> column summarises the overall reliability of each row and should be the primary filter applied before analysis.</p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

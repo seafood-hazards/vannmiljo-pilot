@@ -1,0 +1,317 @@
+[
+  {
+    "objectID": "sediment-fractions.html",
+    "href": "sediment-fractions.html",
+    "title": "Sediment Particle Size Fractions",
+    "section": "",
+    "text": "Marine sediment cores collected as part of this project were analysed for grain-size distribution. The raw data report particle abundance as percentages across a variety of size classes and aggregate measures.\n\n\n\n\n\nFraction\nSize range\nDescription\n\n\n\n\nClay\n&lt; 2 µm\nVery fine particles, high surface area\n\n\nSilt\n2 – 63 µm\nFine particles, settles slowly\n\n\nSand\n63 – 2000 µm\nMedium particles comprising five sub-fractions (63–125, 125–250, 250–500, 500–1000, 1000–2000 µm)\n\n\nGravel\n&gt; 2000 µm\nCoarse particles &gt; 2 mm; typically minor in open marine settings"
+  },
+  {
+    "objectID": "sediment-fractions.html#overview",
+    "href": "sediment-fractions.html#overview",
+    "title": "Sediment Particle Size Fractions",
+    "section": "",
+    "text": "Marine sediment cores collected as part of this project were analysed for grain-size distribution. The raw data report particle abundance as percentages across a variety of size classes and aggregate measures.\n\n\n\n\n\nFraction\nSize range\nDescription\n\n\n\n\nClay\n&lt; 2 µm\nVery fine particles, high surface area\n\n\nSilt\n2 – 63 µm\nFine particles, settles slowly\n\n\nSand\n63 – 2000 µm\nMedium particles comprising five sub-fractions (63–125, 125–250, 250–500, 500–1000, 1000–2000 µm)\n\n\nGravel\n&gt; 2000 µm\nCoarse particles &gt; 2 mm; typically minor in open marine settings"
+  },
+  {
+    "objectID": "sediment-fractions.html#data-quality-issues",
+    "href": "sediment-fractions.html#data-quality-issues",
+    "title": "Sediment Particle Size Fractions",
+    "section": "Data Quality Issues",
+    "text": "Data Quality Issues\n\n1. Non-standard measurement operators\nNot all measurements are simple point estimates. Each value in the source data is accompanied by an operator describing its relationship to the true value:\n\n\n\n\n\nOperator\nMeaning\nTreatment\n\n\n\n\n=\nExact measurement\nUsed as-is\n\n\n&lt;\nBelow detection or quantification limit\nReplaced with half the reported value (mid-point convention)\n\n\n&gt;\nExceeds the upper measurement range (lower bound only)\nUsed as-is (treated as a measured lower bound)\n\n\n\n\n\n\n\n2. Decimal-point errors\nValues well above 100 % were present in the source data, most likely caused by decimal points being omitted or misplaced during data entry in spreadsheet software. For example, a true value of 45.9 % was recorded as 45903.\n\n\n3. Overlapping and redundant parameters\nThe source data contain both aggregate parameters and their constituent sub-fractions for the same sample:\n\nFines &lt; 63 µm (FINS) is the sum of Clay + Silt, but some samples report FINS alongside separate Clay and Silt measurements, double-counting that portion.\nCoarse &gt; 63 µm (GSMF_63) is similarly redundant when individual sand sub-fractions or a gravel measurement are also present.\n\nIncluding both aggregate and component values inflates the apparent total well beyond 100 % and prevents straightforward fraction conversion."
+  },
+  {
+    "objectID": "sediment-fractions.html#processing-pipeline",
+    "href": "sediment-fractions.html#processing-pipeline",
+    "title": "Sediment Particle Size Fractions",
+    "section": "Processing Pipeline",
+    "text": "Processing Pipeline\nThe data are processed in six sequential steps. Each step feeds directly into the next.\n\nStep 0: Operator adjustment\nMeasurement operators are resolved into usable numeric values using the conventions shown in the table above. All subsequent steps operate on these adjusted values.\n\n\nStep 0b: Decimal-point correction\nFor each parameter, a background median is computed from all valid values (i.e. those already in the range 0–100 %). Values exceeding 100 % are then corrected by dividing by successive powers of ten (10, 100, 1000, …) and selecting the candidate that is both ≤ 100 % and closest to that parameter’s background median. Values that cannot be recovered this way are set to missing and flagged.\n\n\nStep 0c: Overlap removal and rescaling\nRedundant aggregate parameters are removed from any sample where their components are also present. Specifically:\n\nFINS is dropped if either GSMF2 (Clay) or GSMF2_63 (Silt) is present.\nGSMF_63 is dropped if any sand sub-fraction or GSMF_2000 (Gravel) is present.\n\nAfter deduplication, the remaining values for each sample are summed. If the total exceeds 100 %, all values are rescaled proportionally so that the sample sums to exactly 100 %.\n\n\nStep 1: Wide-format restructuring\nThe cleaned long-format data are pivoted to wide format, giving one row per sample × sediment layer with columns for each grain-size parameter and its operator.\n\n\nStep 2: Arithmetic derivation (four passes)\nThe four target fractions are derived algebraically from whichever measurements are available, without using any background statistics. The derivation exploits the following constraints.\n\nClay + Silt = Fines\nSand + Gravel = Coarse\nFines + Coarse = 100%\n\nFour passes are made in order:\n\n\n\n\n\n\n\nPass\nAction\n\n\n\n\n1\nAssign directly measured values\n\n\n2a\nCompute group totals (Fines or Coarse) from the sum of their components\n\n\n2b\nDerive a missing component by subtracting the known one from the group total\n\n\n3\nApply the 100 % constraint to derive the missing group total\n\n\n4\nRepeat Pass 2b using group totals that became available in Pass 3\n\n\n\nThis resolves the vast majority of combinations present in the dataset without any assumptions about the sediment composition.\n\n\nStep 3: Background ratio estimation\nFor samples that arithmetic derivation could not fully resolve, background ratios are estimated from all samples where both components of a group are arithmetically known:\n\\[r_\\text{clay/fines} = \\text{median}\\!\\left(\\frac{\\text{Clay}}{\\text{Clay} + \\text{Silt}}\\right)\\] \\[\\qquad r_\\text{gravel/coarse} = \\text{median}\\!\\left(\\frac{\\text{Gravel}}{\\text{Sand} + \\text{Gravel}}\\right)\\]\nA set of overall background proportions (Clay : Silt : Sand : Gravel) is also derived from samples where all four fractions are known, for use as a final fallback.\n\n\nStep 4: Within-group background splits\nIf a group total (Fines or Coarse) is known but neither of its components could be derived arithmetically, the group total is split using the background ratios from Step 3.\n\n\nStep 5: General background imputation\nAny fraction still unknown after Steps 2–4 is assigned a share of the remaining percentage budget (100 % minus the sum of known fractions). The share is proportional to that fraction’s background weight. Fractions already resolved are never modified at this stage."
+  },
+  {
+    "objectID": "sediment-fractions.html#quality-confidence-flag",
+    "href": "sediment-fractions.html#quality-confidence-flag",
+    "title": "Sediment Particle Size Fractions",
+    "section": "Quality Confidence Flag",
+    "text": "Quality Confidence Flag\nEvery sample receives a single qc_confidence rating based on accumulated penalty points from the three pre-processing steps.\n\n\n\n\n\nSource\nPenalty points\n\n\n\n\nSum of fractions 100–101 % (minor rounding)\n+1\n\n\nSum of fractions 101–110 % (moderate conflict)\n+2\n\n\nSum of fractions 110–200 % (serious conflict)\n+3\n\n\nSum of fractions &gt; 200 % (likely multiple errors)\n+4\n\n\nDecimal-point correction applied (Step 0b)\n+1\n\n\nRedundant aggregate removed (Step 0c)\n+1\n\n\n\n\n\n\n\n\n\n\nTotal penalty\nqc_confidence\nInterpretation\n\n\n\n\n0\nhigh\nNo data quality issues detected\n\n\n1\nmedium\nOne minor issue (e.g. rounding-only excess or one decimal correction)\n\n\n2\nlow\nTwo minor or one moderate issue\n\n\n3\nvery_low\nSubstantial conflict in the original data; values corrected by rescaling\n\n\n4 or more\nunreliable\nSevere conflict; results may not be reliable\n\n\n\n\n\nResearchers are encouraged to filter on qc_confidence according to the requirements of their analysis. A common starting point is to retain \"high\" and \"medium\" samples for quantitative work, and to inspect \"low\" samples on a case-by-case basis."
+  },
+  {
+    "objectID": "sediment-fractions.html#derivation-method-labels",
+    "href": "sediment-fractions.html#derivation-method-labels",
+    "title": "Sediment Particle Size Fractions",
+    "section": "Derivation Method Labels",
+    "text": "Derivation Method Labels\nIn addition to the confidence flag, each of the four output fractions carries a label describing how it was derived:\n\n\n\n\n\nMethod\nMeaning\n\n\n\n\ndirect\nThe fraction was measured directly in the original data\n\n\narithmetic\nThe fraction was calculated from other measurements using mass-balance arithmetic (no assumptions about composition)\n\n\nbackground\nAt least one background ratio or overall proportion was required to estimate this fraction"
+  },
+  {
+    "objectID": "sediment-fractions.html#data-availability",
+    "href": "sediment-fractions.html#data-availability",
+    "title": "Sediment Particle Size Fractions",
+    "section": "Data Availability",
+    "text": "Data Availability\nA tab-delimited files containing particle fractions is available for download at the following location.\n\npilot_vannmiljo_particles.tsv.gz\n\n\nColumn Definition\nThe final exported dataset contains one row per sample × sediment layer. The columns are described below.\n\n\n\n\n\nColumn\nType\nDescription\n\n\n\n\nsample_id\ncharacter\nUnique sample identifier, linking to the broader dataset\n\n\nsediment_no\ninteger\nSediment layer number within the core (1 = topmost measured layer)\n\n\nclay_pct\nnumeric\nClay fraction (&lt; 2 µm), as a percentage of the total sediment\n\n\nsilt_pct\nnumeric\nSilt fraction (2–63 µm), as a percentage\n\n\nsand_pct\nnumeric\nSand fraction (63–2000 µm), as a percentage\n\n\ngravel_pct\nnumeric\nGravel fraction (&gt; 2000 µm), as a percentage\n\n\ntotal_pct\nnumeric\nSum of the four fractions; equals 100 % for all fully processed samples\n\n\nclay_method\ncharacter\nDerivation method for clay: 'direct', 'arithmetic', or 'background'\n\n\nsilt_method\ncharacter\nDerivation method for silt\n\n\nsand_method\ncharacter\nDerivation method for sand\n\n\ngravel_method\ncharacter\nDerivation method for gravel\n\n\nany_op_adjusted\nlogical\nTRUE if any input measurement had a non-exact operator (i.e. '&lt;', '&gt;', or 'ND')\n\n\nqc_confidence\nfactor\nData quality confidence level: 'high', 'medium', 'low', 'very_low', or 'unreliable'\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nFractions estimated using background ratios (method = \"background\") are model-derived and carry more uncertainty than directly measured or arithmetically derived values. The qc_confidence column summarises the overall reliability of each row and should be the primary filter applied before analysis."
+  },
+  {
+    "objectID": "location-names.html",
+    "href": "location-names.html",
+    "title": "Estimation of Location Names",
+    "section": "",
+    "text": "A common challenge in oceanographic datasets is missing or inconsistent location metadata. While sediment core data usually come with coordinates (latitude and longitude), fields such as the Nearest Country and the Nearest Municipality are often left blank or recorded inconsistently.\nTo ensure consistency across the dataset, we algorithmically estimated these fields based on the core’s location. This page outlines the data sources and geospatial methods used to populate the country, municipality, and sea_name columns in the Core table.\n\n\n\n\n\n\nNoteNote on Accuracy\n\n\n\nThese values are algorithmic estimates based on geometric proximity. They may differ from historical logbooks or specific political definitions of maritime borders."
+  },
+  {
+    "objectID": "location-names.html#overview",
+    "href": "location-names.html#overview",
+    "title": "Estimation of Location Names",
+    "section": "",
+    "text": "A common challenge in oceanographic datasets is missing or inconsistent location metadata. While sediment core data usually come with coordinates (latitude and longitude), fields such as the Nearest Country and the Nearest Municipality are often left blank or recorded inconsistently.\nTo ensure consistency across the dataset, we algorithmically estimated these fields based on the core’s location. This page outlines the data sources and geospatial methods used to populate the country, municipality, and sea_name columns in the Core table.\n\n\n\n\n\n\nNoteNote on Accuracy\n\n\n\nThese values are algorithmic estimates based on geometric proximity. They may differ from historical logbooks or specific political definitions of maritime borders."
+  },
+  {
+    "objectID": "location-names.html#nearest-country",
+    "href": "location-names.html#nearest-country",
+    "title": "Estimation of Location Names",
+    "section": "Nearest Country",
+    "text": "Nearest Country\nSince sediment cores are taken underwater, they do not technically belong “inside” a country’s land border. To identify the associated nation, we used a “Nearest Neighbor” analysis.\n\nConcept: For every point in the ocean, we calculated the straight-line distance to the coastlines of all surrounding nations. The country with the shortest distance was assigned to the core.\nData Source: We used the Natural Earth dataset (via the rnaturalearth R package). This provides a standardized, moderate-resolution map of global country boundaries suitable for identifying the nearest sovereign nation."
+  },
+  {
+    "objectID": "location-names.html#nearest-municipality",
+    "href": "location-names.html#nearest-municipality",
+    "title": "Estimation of Location Names",
+    "section": "Nearest Municipality",
+    "text": "Nearest Municipality\nFor higher-resolution analysis, identifying the country is not enough. We also estimated the Nearest Municipality (Local Administrative Unit) to provide granular context.\n\nConcept: Similar to the country estimation, this uses a “Nearest Neighbor” approach but requires much more detailed maps that include islands and complex coastal administrative borders.\nData Source: We utilized the Eurostat GISCO database (via the giscoR R package). This provides official administrative boundaries for European countries down to the municipal level (LAU - Local Administrative Units)."
+  },
+  {
+    "objectID": "location-names.html#sea-ocean-names",
+    "href": "location-names.html#sea-ocean-names",
+    "title": "Estimation of Location Names",
+    "section": "Sea & Ocean Names",
+    "text": "Sea & Ocean Names\nTo determine which body of water a core was taken from (e.g., “Barents Sea” vs. “Norwegian Sea”), we used the “Point-in-Polygon” method.\n\nConcept: Imagine drawing official boundaries on a map. We simply check which boundary “box” each sediment core falls inside.\nData Source: We utilized the International Hydrographic Organization (IHO) Sea Areas v3. This is the globally accepted standard for defining the limits of oceans and seas.\nMethod: The specific boundaries were downloaded directly from the Marine Regions estimation service. If a core was located slightly “inland” due to map resolution issues (common in narrow fjords), it was assigned to the nearest adjacent sea body."
+  },
+  {
+    "objectID": "location-names.html#summary-of-data-sources",
+    "href": "location-names.html#summary-of-data-sources",
+    "title": "Estimation of Location Names",
+    "section": "Summary of Data Sources",
+    "text": "Summary of Data Sources\n\n\n\n\n\n\n\n\n\nField\nEstimation Method\nData Source\nR Package / Tool\n\n\n\n\nNearest Country\nNearest Neighbor\nNatural Earth\nrnaturalearth\n\n\nMunicipality\nNearest Neighbor\nEurostat GISCO\ngiscoR\n\n\nSea Name\nSpatial Join\nIHO Sea Areas v3\nsf (Direct WFS)"
+  },
+  {
+    "objectID": "distance-to-coast.html",
+    "href": "distance-to-coast.html",
+    "title": "Distance Calculation",
+    "section": "",
+    "text": "As the initial data analysis will be performed on the Vannmiljø sites located within Norwegian fjords and surrounding areas near the Norwegian coastline, the distances to the nearest coastline were calculated.\nThe distance data is available in the dist_to_coast column of the Site table."
+  },
+  {
+    "objectID": "distance-to-coast.html#sediment-sites",
+    "href": "distance-to-coast.html#sediment-sites",
+    "title": "Distance Calculation",
+    "section": "Sediment Sites",
+    "text": "Sediment Sites\n\nDistance Calculation\n\n\n\nCount of Four Groups\nThe table summarises how many observations fall into each of the four groups, broken down by distance categories.\n\n\n\n\n\n\nDistance\n# Sediment Cores\n\n\n\n\n0 to 10km\n20710\n\n\n10 to 30km\n40\n\n\n30 to 100km\n130\n\n\n≥100km\n143"
+  },
+  {
+    "objectID": "distance-to-coast.html#methods",
+    "href": "distance-to-coast.html#methods",
+    "title": "Distance Calculation",
+    "section": "Methods",
+    "text": "Methods\nCoastline data were derived from the Global Self-consistent, Hierarchical, High-resolution Geography (GSHHG) database. High-resolution shoreline polygons were extracted for the region covering the Norwegian mainland and the Svalbard archipelago. The coastline geometry was cleaned and filtered to ensure topological validity before calculation.\nTo ensure accurate measurements at high latitudes, where standard global projections (like Mercator) distort distances, all spatial data were projected to the ETRS89-extended Lambert Azimuthal Equal Area projection (EPSG:3035). This Coordinate Reference System is the standard for pan-European statistical mapping and minimizes distortion across the region. The shortest Euclidean distance from each sampling (core) site to the nearest Norwegian coastline geometry was then calculated in meters.\nThe calculation was performed using the sf library in R."
+  },
+  {
+    "objectID": "db-schema.html",
+    "href": "db-schema.html",
+    "title": "DB Schema",
+    "section": "",
+    "text": "The page shows the database schema diagram along with table definitions based on the Vannmiljø dataset."
+  },
+  {
+    "objectID": "db-schema.html#db-schema-diagram",
+    "href": "db-schema.html#db-schema-diagram",
+    "title": "DB Schema",
+    "section": "DB Schema Diagram",
+    "text": "DB Schema Diagram\nThe proposed database design shown in the ER (Entity Relationship) diagram below contains 10 tables including three meta (entity) tables, four variable (look-up or reference) tables, one fact (measurement) table, and two mixed tables.\nThe columns with PK in the diagram indicate primary keys of the table, which guarantees unique identifications."
+  },
+  {
+    "objectID": "db-schema.html#activity-table",
+    "href": "db-schema.html#activity-table",
+    "title": "DB Schema",
+    "section": "Activity Table",
+    "text": "Activity Table\nThe activity table contains the monitoring programs or projects associated with the samples.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nactivity_id\nTEXT\n✓\nFALSE\nPrimary Key. Unique identifier for the activity/monitoring program.\n\n\nactivity_name\nTEXT\n\nFALSE\nName of the monitoring program or project."
+  },
+  {
+    "objectID": "db-schema.html#client-table",
+    "href": "db-schema.html#client-table",
+    "title": "DB Schema",
+    "section": "Client Table",
+    "text": "Client Table\nThe client table stores information about the entities (e.g., municipalities, environmental agencies) that commissioned the data collection.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nclient_id\nINTEGER\n✓\nFALSE\nPrimary Key. Unique identifier for the client.\n\n\nclient\nTEXT\n\nFALSE\nName of the client or commissioner.\n\n\narchive\nBOOLEAN\n\nFALSE\nFlag indicating if the record is archived."
+  },
+  {
+    "objectID": "db-schema.html#contractor-table",
+    "href": "db-schema.html#contractor-table",
+    "title": "DB Schema",
+    "section": "Contractor Table",
+    "text": "Contractor Table\nThe contractor table identifies the laboratories or institutes that performed the sampling or analysis.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\ncontractor_id\nINTEGER\n✓\nFALSE\nPrimary Key. Unique identifier for the contractor.\n\n\ncontractor\nTEXT\n\nFALSE\nName of the contractor (e.g., NIVA, Analycen)."
+  },
+  {
+    "objectID": "db-schema.html#site-table",
+    "href": "db-schema.html#site-table",
+    "title": "DB Schema",
+    "section": "Site Table",
+    "text": "Site Table\nThe site table holds geographical and administrative details about the sampling locations.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nsite_code\nTEXT\n✓\nFALSE\nPrimary Key. Unique code for the sampling site.\n\n\nsite_name\nTEXT\n\nTRUE\nName of the sampling location.\n\n\nlabel\nTEXT\n\nTRUE\nAdditional designation or label for the site.\n\n\nlon\nREAL\n\nFALSE\nLongitude coordinate.\n\n\nlat\nREAL\n\nFALSE\nLatitude coordinate.\n\n\ndist_to_coast\nREAL\n\nTRUE\nDistance to the coast.\n\n\ncountry\nTEXT\n\nTRUE\nCountry name.\n\n\ncountry_code\nTEXT\n\nTRUE\nCountry code (e.g., NO).\n\n\nmunicipality\nTEXT\n\nTRUE\nMunicipality name.\n\n\nsea_name\nTEXT\n\nTRUE\nName of the sea or coastal water body."
+  },
+  {
+    "objectID": "db-schema.html#sample-method-table",
+    "href": "db-schema.html#sample-method-table",
+    "title": "DB Schema",
+    "section": "Sample Method Table",
+    "text": "Sample Method Table\nThe sample_method table catalogs the different techniques and equipment used to collect samples.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nmethod_id\nINTEGER\n✓\nFALSE\nPrimary Key. Unique identifier for the sampling method.\n\n\nmethod\nTEXT\n\nFALSE\nDescription or standard code for the sampling method."
+  },
+  {
+    "objectID": "db-schema.html#analysis-method-table",
+    "href": "db-schema.html#analysis-method-table",
+    "title": "DB Schema",
+    "section": "Analysis Method Table",
+    "text": "Analysis Method Table\nThe analysis_method table contains the laboratory procedures and units used to analyze the parameters.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nanalysis_id\nINTEGER\n✓\nFALSE\nPrimary Key. Unique identifier for the analysis method.\n\n\nanalysis\nTEXT\n\nFALSE\nDescription or standard code of the analysis method.\n\n\nunit\nTEXT\n\nFALSE\nUnit of measurement for the analysis results."
+  },
+  {
+    "objectID": "db-schema.html#parameter-table",
+    "href": "db-schema.html#parameter-table",
+    "title": "DB Schema",
+    "section": "Parameter Table",
+    "text": "Parameter Table\nThe parameter table defines the chemicals or properties being measured.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nparam_id\nTEXT\n✓\nFALSE\nPrimary Key. Unique code for the parameter.\n\n\nparam_name\nTEXT\n\nFALSE\nName of the chemical or measured property.\n\n\ncas_no\nTEXT\n\nTRUE\nChemical Abstracts Service (CAS) registry number."
+  },
+  {
+    "objectID": "db-schema.html#sample-table",
+    "href": "db-schema.html#sample-table",
+    "title": "DB Schema",
+    "section": "Sample Table",
+    "text": "Sample Table\nThe sample table records the core metadata for each physical sample collected, tying together locations, methods, and actors.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nsample_id\nTEXT\n✓\nFALSE\nPrimary Key. Unique identifier for the sample.\n\n\nactivity_id\nTEXT\n\nFALSE\nForeign Key to activity table.\n\n\nsite_code\nTEXT\n\nFALSE\nForeign Key to site table.\n\n\nclient_id\nINTEGER\n\nFALSE\nForeign Key to client table.\n\n\ncontractor_id\nINTEGER\n\nFALSE\nForeign Key to contractor table.\n\n\nmethod_id\nINTEGER\n\nFALSE\nForeign Key to sample_method table.\n\n\nupper_depth\nREAL\n\nFALSE\nUpper depth of the sample.\n\n\nlower_depth\nREAL\n\nFALSE\nLower depth of the sample.\n\n\nsample_time\nTEXT\n\nTRUE\nTimestamp of when the sample was collected.\n\n\nfiltered\nBOOLEAN\n\nTRUE\nIndicates whether the sample was filtered."
+  },
+  {
+    "objectID": "db-schema.html#sediment-table",
+    "href": "db-schema.html#sediment-table",
+    "title": "DB Schema",
+    "section": "Sediment Table",
+    "text": "Sediment Table\nThe sediment table stores the actual measurement values for the parameters analyzed in each sample.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nsample_id\nTEXT\n✓\nFALSE\nPrimary Key. Foreign Key to sample table.\n\n\nparam_id\nTEXT\n✓\nFALSE\nPrimary Key. Foreign Key to parameter table.\n\n\nsediment_no\nINTEGER\n✓\nFALSE\nPrimary Key. Sequential index for multiple records per sample-parameter combination.\n\n\nanalysis_id\nINTEGER\n\nFALSE\nForeign Key to analysis_method table.\n\n\nvalue\nREAL\n\nFALSE\nThe measured concentration or numerical result.\n\n\noperator\nTEXT\n\nTRUE\nMathematical operator (e.g., &lt;, =, &gt;), indicating LLD.\n\n\nsample_no\nTEXT\n\nTRUE\nPhysical sample identification number.\n\n\nn_values\nINTEGER\n\nTRUE\nNumber of values/replicates used to derive the measurement."
+  },
+  {
+    "objectID": "db-schema.html#lld-limits-of-detection-table",
+    "href": "db-schema.html#lld-limits-of-detection-table",
+    "title": "DB Schema",
+    "section": "LLD (Limits of Detection) Table",
+    "text": "LLD (Limits of Detection) Table\nThe lld table contains Limit of Detection (LOD) and Limit of Quantification (LOQ) data corresponding to specific measurements.\n\nTable Columns\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nData Type\nPK\nNA Allowed\nDescription\n\n\n\n\nsample_id\nTEXT\n✓\nFALSE\nPrimary Key. Foreign Key to sediment table.\n\n\nparam_id\nTEXT\n✓\nFALSE\nPrimary Key. Foreign Key to sediment table.\n\n\nsediment_no\nINTEGER\n✓\nFALSE\nPrimary Key. Foreign Key to sediment table.\n\n\ntype\nTEXT\n✓\nFALSE\nPrimary Key. Type of limit (e.g., LOD or LOQ).\n\n\nvalue\nREAL\n\nFALSE\nNumerical value of the detection/quantification limit."
+  },
+  {
+    "objectID": "data-export.html",
+    "href": "data-export.html",
+    "title": "Data Export",
+    "section": "",
+    "text": "Three data files were created for the initial analysis using the Vannmiljø data."
+  },
+  {
+    "objectID": "data-export.html#data-availability",
+    "href": "data-export.html#data-availability",
+    "title": "Data Export",
+    "section": "Data Availability",
+    "text": "Data Availability\nThree tab-delimited files containing all major data from the database, particle fractions, and major data plus particle fractions are available for download at the following location.\n\npilot_vannmiljo_all.tsv.gz\npilot_vannmiljo_particles.tsv.gz\npilot_vannmiljo_pivoted_particles.tsv.gz\n\n\n\n\n\n\n\nImportant\n\n\n\nThe pilot_vannmiljo_pivoted_particles.tsv.gz file is the recommended starting point for sediment chemistry analyses."
+  },
+  {
+    "objectID": "data-export.html#all-major-data",
+    "href": "data-export.html#all-major-data",
+    "title": "Data Export",
+    "section": "All Major Data",
+    "text": "All Major Data\nThe file pilot_vannmiljo_all.tsv.gz is a denormalized (flat) export of the relational database, designed to facilitate immediate analysis without requiring complex SQL joins.\n\nColumn Definition\n\n\n\n\n\nColumn Name\nSource Table\nDescription\n\n\n\n\nactivity_id\nActivity\nUnique identifier for the activity/monitoring program\n\n\nactivity_name\nActivity\nName of the activity or monitoring program\n\n\nsite_code\nSite\nUnique code for the sampling site\n\n\nsite_name\nSite\nName of the sampling location\n\n\nlon\nSite\nLongitude coordinate (decimal degrees)\n\n\nlat\nSite\nLatitude coordinate (decimal degrees)\n\n\ndist_to_coast\nSite\nDistance to the nearest coastline\n\n\ncountry\nSite\nCountry name\n\n\ncountry_code\nSite\nCountry code\n\n\nmunicipality\nSite\nMunicipality name\n\n\nsea_name\nSite\nName of the sea or coastal water body\n\n\nsample_time\nSample\nDate and time when the sample was collected\n\n\nupper_depth\nSample\nUpper depth of the sampled interval\n\n\nlower_depth\nSample\nLower depth of the sampled interval\n\n\nsample_no\nSediment\nPhysical sample identification number\n\n\nn_values\nSediment\nNumber of values or replicates used to derive the measurement\n\n\nparam_id\nParameter\nUnique identifier for the chemical parameter\n\n\nparam_name\nParameter\nName of the chemical parameter measured\n\n\nmethod\nSample Method\nMethod or equipment used to take the sample\n\n\nanalysis\nAnalysis Method\nLaboratory analysis method used\n\n\nvalue\nSediment\nMeasured concentration or numerical result\n\n\nunit\nAnalysis Method\nUnit of measurement for the value\n\n\noperator\nSediment\nMathematical operator (e.g., &lt;, =) indicating if value is below detection limits\n\n\nlod\nLLD (Filtered)\nLimit of Detection (LOD) value\n\n\nloq\nLLD (Filtered)\nLimit of Quantification (LOQ) value\n\n\ncategory\nParameter (Categorized)\nParameter category: efsa (EFSA elements), other (Other elements), tcs (Total sulfur and carbon), p (Particle fractions)"
+  },
+  {
+    "objectID": "data-export.html#conversion-result-of-particle-fractions",
+    "href": "data-export.html#conversion-result-of-particle-fractions",
+    "title": "Data Export",
+    "section": "Conversion Result of Particle Fractions",
+    "text": "Conversion Result of Particle Fractions\nThe file pilot_vannmiljo_particles.tsv.gz contains the particle size conversion results. For a full description of the conversion methodology, see the Sediment Particle Size Fractions page.\n\nColumn Definition\n\n\n\n\n\nColumn\nType\nDescription\n\n\n\n\nsample_id\ncharacter\nUnique sample identifier, linking to the broader dataset\n\n\nsediment_no\ninteger\nSediment layer number within the core (1 = topmost measured layer)\n\n\nclay_pct\nnumeric\nClay fraction (&lt; 2 µm), as a percentage of the total sediment\n\n\nsilt_pct\nnumeric\nSilt fraction (2–63 µm), as a percentage\n\n\nsand_pct\nnumeric\nSand fraction (63–2000 µm), as a percentage\n\n\ngravel_pct\nnumeric\nGravel fraction (&gt; 2000 µm), as a percentage\n\n\ntotal_pct\nnumeric\nSum of the four fractions; equals 100 % for all fully processed samples\n\n\nclay_method\ncharacter\nDerivation method for clay: 'direct', 'arithmetic', or 'background'\n\n\nsilt_method\ncharacter\nDerivation method for silt\n\n\nsand_method\ncharacter\nDerivation method for sand\n\n\ngravel_method\ncharacter\nDerivation method for gravel\n\n\nany_op_adjusted\nlogical\nTRUE if any input measurement had a non-exact operator (i.e. '&lt;', '&gt;', or 'ND')\n\n\nqc_confidence\nfactor\nData quality confidence level: 'high', 'medium', 'low', 'very_low', or 'unreliable'\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nFractions estimated using background ratios (method = \"background\") are model-derived and carry more uncertainty than directly measured or arithmetically derived values. The qc_confidence column summarises the overall reliability of each row and should be the primary filter applied before analysis."
+  },
+  {
+    "objectID": "data-export.html#major-data-with-particle-fractions",
+    "href": "data-export.html#major-data-with-particle-fractions",
+    "title": "Data Export",
+    "section": "Major Data with Particle Fractions",
+    "text": "Major Data with Particle Fractions\nThe file pilot_vannmiljo_pivoted_particles.tsv.gz is a combined dataset that merges the major data with the derived particle size fractions. It contains all rows from pilot_vannmiljo_all.tsv.gz where category != \"p\" (i.e. all chemical and other measurements, excluding the raw particle fraction rows), with the four derived grain-size fractions and their quality flag appended as additional columns.\n\nColumn Definition\nThe file contains all columns from pilot_vannmiljo_all.tsv.gz (see above), plus the five additional columns below.\n\n\n\n\n\nColumn\nType\nDescription\n\n\n\n\nclay_pct\nnumeric\nClay fraction (&lt; 2 µm) derived from particle size analysis, as a percentage\n\n\nsilt_pct\nnumeric\nSilt fraction (2–63 µm), as a percentage\n\n\nsand_pct\nnumeric\nSand fraction (63–2000 µm), as a percentage\n\n\ngravel_pct\nnumeric\nGravel fraction (&gt; 2000 µm), as a percentage\n\n\ntotal_pct\nnumeric\nSum of the four fractions; equals 100 % for all fully processed samples\n\n\nparticle_qc_confidence\nfactor\nData quality confidence level for the particle fractions: 'high', 'medium', 'low', 'very_low', or 'unreliable'. NA if no particle size data are available for that sample.\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nParticle fraction columns will be NA for samples that have no associated grain-size measurements. The particle_qc_confidence column should be used to filter rows before any analysis that depends on sediment texture."
+  },
+  {
+    "objectID": "data-preparation.html",
+    "href": "data-preparation.html",
+    "title": "Data Preparation",
+    "section": "",
+    "text": "This page outlines the data preparation steps required to standardize the Vannmiljø dataset. The original dataset contains Norwegian terminology and various missing (NA) values. Our goal is to translate the names into English, enforce consistent snake_case naming conventions, and handle missing or inconsistent values appropriately."
+  },
+  {
+    "objectID": "data-preparation.html#column-name-translation",
+    "href": "data-preparation.html#column-name-translation",
+    "title": "Data Preparation",
+    "section": "1. Column Name Translation",
+    "text": "1. Column Name Translation\nThe first step in the data preparation process is renaming the columns. The original Norwegian column names (often CamelCase or mixed) are converted to standardized, lowercase English snake_case names. This makes the dataset much easier to work with in R and SQL.\nThe table below shows the exact mapping from the original column names to the new column names:\n\n\n\nOriginal Norwegian Name (old)\nNew English Name (new)\n\n\n\n\nVannlokalitet_kode\nsite_code\n\n\nVannlokalitetsnavn\nsite_name\n\n\nBetegnelse\nlabel\n\n\nType\nsite_type\n\n\nAktivitet_id\nactivity_id\n\n\nAktivitet_navn\nactivity_name\n\n\nOppdragsgiver\nclient\n\n\nOppdragstaker\ncontractor\n\n\nParameter_id\nparam_id\n\n\nParameter_navn\nparam_name\n\n\nParameter_casnr\ncas_no\n\n\nMedium_id\nmedium_id\n\n\nMedium_navn\nmedium_name\n\n\nLatinskNavn_id\ntaxon_id\n\n\nVitenskapligNavn\nscientific_name\n\n\nProvetakmetode_id\nsample_method\n\n\nAnalysemetode_id\nanalysis_method\n\n\nTid_provetak\nsample_time\n\n\nOvre_dyp\nupper_depth\n\n\nNedre_dyp\nlower_depth\n\n\nDybdeEnhet\ndepth_unit\n\n\nFiltrert_Prove\nis_filtered\n\n\nUnntasKlassifisering\nexclude_class\n\n\nOperator\noperator\n\n\nVerdi\nvalue\n\n\nListenavn\nlist_name\n\n\nEnhet\nunit\n\n\nProvenr\nsample_no\n\n\nDeteksjonsgrense\nlod\n\n\nKvantifiseringsgrense\nloq\n\n\nOpprinnelse\norigin\n\n\nAnt_verdier\nn_values\n\n\nKommentar\ncomment\n\n\nArkiv\narchive\n\n\nProduktbeskrivelse\nproduct_desc\n\n\nUTM33 Ost (X)\nutm33_x\n\n\nUTM33 Nord (Y)\nutm33_y"
+  },
+  {
+    "objectID": "data-preparation.html#data-cleaning-and-value-conversion",
+    "href": "data-preparation.html#data-cleaning-and-value-conversion",
+    "title": "Data Preparation",
+    "section": "2. Data Cleaning and Value Conversion",
+    "text": "2. Data Cleaning and Value Conversion\nAfter renaming the columns, the internal row values must be cleaned and translated. The data cleaning process addresses several inconsistencies in the raw data:\n\nHandling Missing Entities: Missing (NA) values in contractor are replaced with \"Unknown\". For client, missing values or placeholders like \"0\" are also replaced with \"Unknown\".\nStandardizing Methods: Missing values or the Norwegian word \"UKJENT\" (Unknown) in sample_method and analysis_method are standardized to \"Unknown\".\nFixing Depth Variables: Missing values (NA) in upper_depth and lower_depth are assumed to be surface level and set to 0.0. The column types are safely coerced to numeric.\nBoolean Conversions:\n\nThe is_filtered column is evaluated: if the value is \"Filtrert\" (Filtered), it is converted to TRUE; otherwise, FALSE. The result is saved to a new filtered column.\nThe archive column uses \"j\" (for ja, meaning yes). This is converted to a standard TRUE/FALSE boolean.\n\nTranslating Parameters: The Norwegian chemical parameter names in param_name are mapped to their English equivalents (e.g., Kobber to Copper, Sink to Zinc)."
+  },
+  {
+    "objectID": "distance-interactive-map.html",
+    "href": "distance-interactive-map.html",
+    "title": "Interactive Map of Core Locations",
+    "section": "",
+    "text": "NoteNote on Distance Accuracy\n\n\n\nCalculated distances represent the shortest Euclidean path to the nearest coastline geometry (GSHHG dataset).\nWhile the data is projected (EPSG:3035) to minimize distortion at high latitudes, please interpret these values as estimates. In areas with complex topography—such as narrow fjords or dense archipelagos—the resolution of the coastline vector data may result in minor deviations from real-world measurements."
+  },
+  {
+    "objectID": "distance-interactive-map.html#interactive-map",
+    "href": "distance-interactive-map.html#interactive-map",
+    "title": "Interactive Map of Core Locations",
+    "section": "Interactive Map",
+    "text": "Interactive Map\nThe map below displays the spatial distribution of sediment cores. The markers are color-coded based on their distance from the nearest Norwegian coastline.\nHow to use this map:\n\nZoom and Pan to explore specific coastal areas or offshore regions.\nClick the Globe icon   to reset the view.\nFilter the data by toggling distance categories in the top-right menu (e.g., uncheck boxes to hide specific ranges).\nUse the Legend in the bottom right to interpret the color coding.\nHover over a point to quickly identify the Cruise ID and Core ID.\nClick on a marker to view exact coordinates, distance to shore (in km), and location names."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Vannmiljø Pilot Database",
+    "section": "",
+    "text": "This site presents the initial version of the database design and its potential applications using the publicly available Vannmiljø dataset."
+  },
+  {
+    "objectID": "index.html#source-data",
+    "href": "index.html#source-data",
+    "title": "Vannmiljø Pilot Database",
+    "section": "Source Data",
+    "text": "Source Data\n\nData search page at Vannmiljø: Søk i vannrelaterte data\n\n\nSearch criteria\n\nMedium\n\nSediment saltvann\n\n\n\nParameter\n\nEFSA elements (Kobber, Sink, Mangan, Kobolt, Molybden, Selen)\nOther elements\nCarbon content and total sulfur\nParticle sizes\n\n\n\n\nCount of Sampling Sites\nThe table below summarizes the number of sampling sites documented across 27 activities and projects between 1975 and 2025."
+  },
+  {
+    "objectID": "index.html#database-design-and-creation",
+    "href": "index.html#database-design-and-creation",
+    "title": "Vannmiljø Pilot Database",
+    "section": "Database Design and Creation",
+    "text": "Database Design and Creation\nAfter creating the ER (Entity–Relationship) diagram, the tables were implemented in a single SQLite file containing 10 tables. All required data were extracted from the Vannmiljø export file and imported into the corresponding tables.\n\nSee the DB Schema page for details on the database architecture.\nSee the Data Preparation page for the data preparation process used prior to importing the Vannmiljø dataset."
+  },
+  {
+    "objectID": "index.html#geospatial-analysis",
+    "href": "index.html#geospatial-analysis",
+    "title": "Vannmiljø Pilot Database",
+    "section": "Geospatial Analysis",
+    "text": "Geospatial Analysis\nTo facilitate efficient core and sample selection, distances to the nearest coastline were calculated for the Vannmiljø data. In addition, the nearest country and municipality, as well as the sea and ocean names, were identified based on the core locations.\n\nSee the Distance Calculation page for the methods and results of calculating the distance to the nearest coastline.\nSee the Location Names page for the estimation of location names from geographic coordinates.\nSee the Interactive Map page for an interactive visualization of core locations with meta-information."
+  },
+  {
+    "objectID": "index.html#data-export",
+    "href": "index.html#data-export",
+    "title": "Vannmiljø Pilot Database",
+    "section": "Data Export",
+    "text": "Data Export\nData can be exported for both exploration and submission purposes.\n\nSee the Sediment Particle Size Fractions page for a description of the conversion from raw grain-size measurements to standardised sediment particle fractions.\nSee the Export to Tabular File page for descriptions of three tabular files (.tsv.gz) that are extracted and merged from all database tables for data exploration."
+  },
+  {
+    "objectID": "index.html#tools",
+    "href": "index.html#tools",
+    "title": "Vannmiljø Pilot Database",
+    "section": "Tools",
+    "text": "Tools\n\nSee the Pilot DB Viewer page for a read-only view of the pilot database."
+  },
+  {
+    "objectID": "pilot-db-viewer.html",
+    "href": "pilot-db-viewer.html",
+    "title": "Pilot Database Viewer",
+    "section": "",
+    "text": "This page provides a read-only view of the pilot database. Select a table from the dropdown menu below to view the data.\n\n\n\ndb = {\n  const StratumSQLite = await window._stratumSQLite;\n  return StratumSQLite.open(window._dbPath, {\n    sqlJsPath: window._sqljsBase,\n    cacheKey:  \"pilot-vannmiljo@v0.1.5\",\n  });\n}\n\n// ── 2. Get table names ────────────────────────────────────────────────────\ntables_query = db.query(\n  \"SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%'\"\n)\ntable_names = tables_query.map(row =&gt; row.name)\n\n// ── 3. Selectors ──────────────────────────────────────────────────────────\nviewof selected_table = Inputs.select(table_names, {\n  label: \"Select Table:\",\n  value: table_names[0]\n})\n\nviewof pageSize = Inputs.select([10, 20, 50, 100], {\n  label: \"Rows per page:\",\n  value: 20\n})\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ncount_result = db.query(`SELECT COUNT(*) as total FROM \"${selected_table}\"`)\ntotal_rows   = count_result[0].total\nmax_page     = Math.ceil(total_rows / pageSize)\n\nviewof currentPage = Inputs.range([1, max_page], {\n  label: \"Page number:\",\n  step: 1,\n  value: 1\n})\n\nmd`**Page ${currentPage}** of ${max_page} &nbsp;*(Total rows: ${total_rows})*`\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\noffset     = (currentPage - 1) * pageSize\ndata_paged = db.query(\n  `SELECT * FROM \"${selected_table}\" LIMIT ${pageSize} OFFSET ${offset}`\n)\n\nInputs.table(data_paged, {\n  layout: \"auto\",\n  rows: pageSize,\n  format: {\n    year:       d3.format(\"d\"),\n    start_year: d3.format(\"d\"),\n    end_year:   d3.format(\"d\")\n  }\n})"
+  }
+]
