@@ -73,8 +73,9 @@ Inputs.table(counts_wide, {
 
 After creating the ER (Entity–Relationship) diagram, the tables were implemented in a single SQLite file containing 10 tables. All required data were extracted from the Vannmiljø export file and imported into the corresponding tables.
 
-- See the [DB Schema](./db-schema.qmd) page for details on the database architecture.
+- See the [DB Schema (Full)](./db-schema.qmd) page for details of the full database architecture.
 - See the [Data Preparation](./data-preparation.qmd) page for the data preparation process used prior to importing the Vannmiljø dataset.
+- See the [DB Schema (Slim)](./db-schema-slim.qmd) page for the common multi-source schema.
 
 ## Geospatial Analysis
 
@@ -90,6 +91,8 @@ Data can be exported for both exploration and submission purposes.
 
 - See the [Sediment Particle Size Fractions](./sediment-fractions.qmd) page for a description of the conversion from raw grain-size measurements to standardised sediment particle fractions.
 - See the [Export to Tabular File](./data-export.qmd) page for descriptions of three tabular files (`.tsv.gz`) that are extracted and merged from all database tables for data exploration.
+- See the [EFSA Format v1](./efsa-format.qmd) and [EFSA Format v2](./efsa-format-v2.qmd) pages for descriptions of the EFSA submission file structures.
+- See the [EFSA Submission v1](./efsa-submission.qmd) and [EFSA Submission v2](./efsa-submission-v2.qmd) pages for the mapping between the database fields and the EFSA submission formats.
 
 ## Tools
 
