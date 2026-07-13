@@ -6,6 +6,10 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.20] - 2026-07-13
+### Fixed
+- GitHub Pages deployment failure caused by dplyr missing from renv.lock
+
 ## [0.1.19] - 2026-07-13
 ### Fixed
 - typos in EFSA format/submission v1 pages
