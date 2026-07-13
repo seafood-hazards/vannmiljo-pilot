@@ -6,6 +6,10 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-07-13
+### Fixed
+- typos in EFSA format/submission v1 pages
+
 ## [0.1.18] - 2026-07-13
 ### Added
 - EFSA format and submission pages (v1 and v2)
