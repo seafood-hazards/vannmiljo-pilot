@@ -6,6 +6,12 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.18] - 2026-07-13
+### Added
+- EFSA format and submission pages (v1 and v2)
+- DB Schema (Slim) page for the common multi-source schema
+- CLAUDE.md and Gitflow documentation in README
+
 ## [0.1.17] - 2026-05-07
 ### Fixed
 - average calculation for the interactive map
