@@ -6,6 +6,10 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.21] - 2026-07-17
+### Changed
+- rounded site coordinates to three decimal places in DB Schema (Slim) page
+
 ## [0.1.20] - 2026-07-13
 ### Fixed
 - GitHub Pages deployment failure caused by dplyr missing from renv.lock
@@ -90,7 +94,7 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [0.1.4] - 2026-03-22
 ### Added
-- DT count talbe in the landing page
+- DT count table in the landing page
 
 ## [0.1.3] - 2026-03-22
 ### Fixed
