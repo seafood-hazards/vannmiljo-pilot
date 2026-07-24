@@ -25,7 +25,7 @@ quarto preview              # live-reload local preview
 - `_quarto.yml` — site config: nav structure, render order, R execution options (`echo: false`). Add new pages to both the filesystem and this nav.
 - Each `.qmd` is a standalone page combining Markdown, R chunks, and Observable JS (`{ojs}`) chunks.
 - In-browser SQL: pages query `pilot_vannmiljo.sqlite` client-side via sql.js + stratum-sqlite (loaded from `libs/sqljs/`) and post-process results with the `arquero` JS library — no server/backend. `header.html` (injected site-wide via `include-in-header`) resolves the site root and sets `window._sqljsBase`/`window._dbPath`; `_db-setup.qmd` opens the DB connection from those globals and is included by pages that need it (e.g. `index.qmd`, `pilot-db-viewer.qmd`, `sediment-map.qmd`).
-- `db-schema.qmd` documents the DB's ER design (diagram in `image/`); `data-preparation.qmd` documents how source Vannmiljø exports were transformed into the sqlite DB.
+- `db-schema.qmd` documents the DB's ER design (diagram in `image/`); `data-preparation.qmd` documents how source Vannmiljø exports were transformed into the sqlite DB; `database-downloads.qmd` links to the full and slim SQLite database files published as GitHub release assets.
 - Deployment: `.github/workflows/publish.yml` renders the site with Quarto and deploys `_site/` to GitHub Pages on every push to `main`.
 
 ## Workflow
