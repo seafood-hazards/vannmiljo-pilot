@@ -1,0 +1,26 @@
+---
+title: "Database Downloads"
+subtitle: Download links for the SQLite database files
+---
+
+```{css, echo=FALSE}
+th {
+  white-space: nowrap;
+}
+```
+
+Two versions of the SQLite database are published as assets on the same [GitHub release](https://github.com/seafood-hazards/vannmiljo-pilot/releases/tag/v0.1.16): the full Vannmiljø schema used by this site, and the slim, multi-source-friendly schema.
+
+## Available Databases
+
+```{r}
+library(tibble)
+
+database_tbl <- tribble(
+  ~Version, ~File,                     ~Schema,                                     ~Download,
+  "Full",   "pilot_vannmiljo.sqlite",  "[DB Schema (Full)](./db-schema.qmd)",       "[Download](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.16/pilot_vannmiljo.sqlite)",
+  "Slim",   "vannmiljo_slim.sqlite",   "[DB Schema (Slim)](./db-schema-slim.qmd)",  "[Download](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.16/vannmiljo_slim.sqlite)"
+)
+
+knitr::kable(database_tbl)
+```
