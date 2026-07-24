@@ -6,6 +6,10 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.22] - 2026-07-24
+### Added
+- Database Downloads page with links to the full and slim SQLite database releases
+
 ## [0.1.21] - 2026-07-17
 ### Changed
 - rounded site coordinates to three decimal places in DB Schema (Slim) page
