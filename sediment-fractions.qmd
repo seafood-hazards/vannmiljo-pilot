@@ -222,16 +222,12 @@ tribble(
 
 ---
 
-## Data Availability
-
-A tab-delimited files containing particle fractions is available for download at the following location.
-
- * [pilot_vannmiljo_particles.tsv.gz](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.16/pilot_vannmiljo_particles.tsv.gz)
+## Derived Fractions
 
 ### Column Definition
 
-The final exported dataset contains one row per sample × sediment layer. The columns
-are described below.
+The derivation produces one row per sample × sediment layer. The columns are
+described below.
 
 ```{r}
 tribble(
