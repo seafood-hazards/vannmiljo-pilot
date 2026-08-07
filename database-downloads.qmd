@@ -1,6 +1,6 @@
 ---
 title: "Database Downloads"
-subtitle: Download links for the SQLite database files
+subtitle: Download link for the SQLite database file
 ---
 
 ```{css, echo=FALSE}
@@ -9,18 +9,19 @@ th {
 }
 ```
 
-Two versions of the SQLite database are published as assets on the same [GitHub release](https://github.com/seafood-hazards/vannmiljo-pilot/releases/tag/v0.1.16): the full Vannmiljø schema used by this site, and the slim, multi-source-friendly schema.
+The pilot database is published as an asset on this repository's [latest GitHub release](https://github.com/seafood-hazards/vannmiljo-pilot/releases/latest). It is the only file this site depends on: every page queries it directly in the browser.
 
-## Available Databases
+## Available Database
 
 ```{r}
 library(tibble)
 
 database_tbl <- tribble(
-  ~Version, ~File,                     ~Schema,                                     ~Download,
-  "Full",   "pilot_vannmiljo.sqlite",  "[DB Schema (Full)](./db-schema.qmd)",       "[Download](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.16/pilot_vannmiljo.sqlite)",
-  "Slim",   "vannmiljo_slim.sqlite",   "[DB Schema (Slim)](./db-schema-slim.qmd)",  "[Download](https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.16/vannmiljo_slim.sqlite)"
+  ~File,                      ~Schema,                                 ~Download,
+  "vannmiljo_pilot.sqlite",   "[DB Schema (Full)](./db-schema.qmd)",   "[Download](https://github.com/seafood-hazards/vannmiljo-pilot/releases/latest/download/vannmiljo_pilot.sqlite)"
 )
 
 knitr::kable(database_tbl)
 ```
+
+The download link always resolves to the newest release, so it does not need updating when a new database version is published.

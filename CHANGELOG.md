@@ -6,6 +6,21 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.23] - 2026-08-07
+### Added
+- Pipeline Generations section on the home page (`_generations.qmd`), with links to the other four pilot sites and to the slim, clean, merged and refined generation sites
+
+### Changed
+- Database file renamed from `pilot_vannmiljo.sqlite` to `vannmiljo_pilot.sqlite`, matching the engine's `<source>_pilot.sqlite` convention
+- Database is downloaded from the latest GitHub release instead of a pinned release tag, so no version string has to be edited when a new database is published
+- Database Downloads page lists the single pilot database and links to the latest release
+- Sediment Fractions moved to the DB Design menu, and the Data Export menu renamed to EFSA Submission
+- CLAUDE.md reduced to the site's invariants, with the detail moved to `docs/database.md` and `docs/site.md`
+
+### Removed
+- Export to Tabular File page: the pilot generation no longer exports dataset files
+- DB Schema (Slim) page and the slim database download, which belong to the slim generation's own site
+
 ## [0.1.22] - 2026-07-24
 ### Added
 - Database Downloads page with links to the full and slim SQLite database releases
