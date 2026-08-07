@@ -28,6 +28,24 @@ Ten tables. All access is client-side, through stratum-sqlite.
 Site coordinates are rounded to 3 decimal places. The raw export gives positions
 in UTM zone 33; the engine reprojects them to longitude and latitude with `sf`.
 
+## The geo columns
+
+`site.dist_to_coast`, `country`, `country_code`, `municipality` and `sea_name`
+are computed by the external [seastamp](https://github.com/AIQC-Hub/seastamp)
+CLI (GSHHG full resolution, Natural Earth 1:10m, GISCO LAU 2021, IHO Sea Areas
+v3), run over the distinct site positions in an LAEA projection derived from the
+points themselves. They are **not** in the raw Vannmiljø export.
+
+They were recomputed at site v0.1.24: before that they came from an `sf` /
+`rnaturalearth` / `giscoR` implementation, which resolved `sea_name` only to
+ocean basin level and emitted alpha-2 country codes. `distance-to-coast.qmd` and
+`location-names.qmd` document the method and the measured change.
+
+Six sites carry equator-adjacent coordinates (4.511 E, 0.001 N) that are wrong
+in the source. Their distances used to be measured against a Norway-cropped
+coastline and came out at 3,965 km; seastamp reports the true nearest coast
+instead. The coordinates remain wrong either way, and the slim stage flags them.
+
 `db-schema.qmd` renders the ER diagram and the full column definitions;
 `data-preparation.qmd` documents how the raw Vannmiljø exports were transformed
 before import; `sediment-fractions.qmd` documents how the overlapping raw
