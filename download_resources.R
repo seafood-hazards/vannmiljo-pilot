@@ -1,8 +1,11 @@
 options(timeout = 600)
 
 # ── SQLite database ────────────────────────────────────────────────────────
-db_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/download/v0.1.16/pilot_vannmiljo.sqlite"
-local_db_file_name <- "pilot_vannmiljo.sqlite"
+# The only data this site needs. It comes from the LATEST release, so no version
+# is edited here: every release must carry the database as an asset, or this
+# download 404s. See docs/site.md.
+db_url <- "https://github.com/seafood-hazards/vannmiljo-pilot/releases/latest/download/vannmiljo_pilot.sqlite"
+local_db_file_name <- "vannmiljo_pilot.sqlite"
 if (!file.exists(local_db_file_name)) {
   download.file(db_url, local_db_file_name, mode = "wb")
   message("Database downloaded.")

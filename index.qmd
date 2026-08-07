@@ -5,6 +5,8 @@ subtitle: "A pilot study to evaluate the database structure using the Vannmiljø
 
 This site presents the initial version of the database design and its potential applications using the publicly available [Vannmiljø](https://vannmiljo.miljodirektoratet.no) dataset.
 
+{{< include _generations.qmd >}}
+
 ## Source Data
 
 - Data search page at Vannmiljø: [Søk i vannrelaterte data](https://vannmiljo.miljodirektoratet.no/#/searchregistrations)
@@ -75,8 +77,8 @@ After creating the ER (Entity–Relationship) diagram, the tables were implement
 
 - See the [DB Schema (Full)](./db-schema.qmd) page for details of the full database architecture.
 - See the [Data Preparation](./data-preparation.qmd) page for the data preparation process used prior to importing the Vannmiljø dataset.
-- See the [DB Schema (Slim)](./db-schema-slim.qmd) page for the common multi-source schema.
-- See the [Database Downloads](./database-downloads.qmd) page for links to download the full and slim SQLite database files.
+- See the [Sediment Particle Size Fractions](./sediment-fractions.qmd) page for the conversion from raw grain-size measurements to standardised sediment particle fractions.
+- See the [Database Downloads](./database-downloads.qmd) page for the download link to the SQLite database file.
 
 ## Geospatial Analysis
 
@@ -86,12 +88,10 @@ To facilitate efficient core and sample selection, distances to the nearest coas
 - See the [Location Names](./location-names.qmd) page for the estimation of location names from geographic coordinates.
 - See the [Interactive Map](./distance-interactive-map.qmd) page for an interactive visualization of site locations with meta-information.
 
-## Data Export
+## EFSA Submission
 
-Data can be exported for both exploration and submission purposes.
+The database fields are mapped to the columns the EFSA reporting tools expect.
 
-- See the [Sediment Particle Size Fractions](./sediment-fractions.qmd) page for a description of the conversion from raw grain-size measurements to standardised sediment particle fractions.
-- See the [Export to Tabular File](./data-export.qmd) page for descriptions of three tabular files (`.tsv.gz`) that are extracted and merged from all database tables for data exploration.
 - See the [EFSA Format v1](./efsa-format.qmd) and [EFSA Format v2](./efsa-format-v2.qmd) pages for descriptions of the EFSA submission file structures.
 - See the [EFSA Submission v1](./efsa-submission.qmd) and [EFSA Submission v2](./efsa-submission-v2.qmd) pages for the mapping between the database fields and the EFSA submission formats.
 
