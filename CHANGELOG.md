@@ -6,6 +6,17 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.24] - 2026-08-07
+### Changed
+- **Geospatial columns recomputed with [seastamp](https://github.com/AIQC-Hub/seastamp)**, the tool the whole pipeline now uses, replacing the earlier `sf` / `rnaturalearth` / `giscoR` implementation. Across the 21,300 distinct site positions: `dist_to_coast` moves by a median of 0.02 km, `municipality` is reassigned for 2,629, `sea_name` for 21,287, and `country` for 16
+- `sea_name` now resolves to IHO sea areas (Barentsz Sea, Greenland Sea, North Sea, Norwegian Sea, Skagerrak) instead of ocean basins only
+- `country_code` is now ISO 3166-1 alpha-3 (`NOR`) rather than alpha-2 (`NO`)
+- Distance Calculation and Estimation of Location Names pages rewritten for the seastamp method and data sources
+- Site table schema describes the source and units of each geospatial column
+
+### Fixed
+- Six sites whose source coordinates place them near the equator were reported as 3,965 km from the coast, measured against the Norwegian coastline crop. They now report the distance to the coast they are actually nearest, and the Distance Calculation page explains that the coordinates themselves are wrong
+
 ## [0.1.23] - 2026-08-07
 ### Added
 - Pipeline Generations section on the home page (`_generations.qmd`), with links to the other four pilot sites and to the slim, clean, merged and refined generation sites
