@@ -79,11 +79,11 @@ site_tbl <- tribble(
   "label",         "TEXT",       "",  "✓",          "Additional designation or label for the site.",
   "lat",           "REAL",       "",  "",         "Latitude coordinate.",
   "lon",           "REAL",       "",  "",         "Longitude coordinate.",
-  "dist_to_coast", "REAL",       "",  "✓",          "Distance to the nearest coastline (km), computed with seastamp.",
-  "country",       "TEXT",       "",  "✓",          "Nearest country (Natural Earth).",
-  "country_code",  "TEXT",       "",  "✓",          "ISO 3166-1 alpha-3 code of the nearest country (e.g. NOR).",
-  "municipality",  "TEXT",       "",  "✓",          "Nearest municipality (Eurostat GISCO LAU), Europe only.",
-  "sea_name",      "TEXT",       "",  "✓",          "Sea or ocean name (IHO Sea Areas v3)."
+  "dist_to_coast", "REAL",       "",  "✓",          "Distance to the nearest coastline (km). Reserved but EMPTY: filled at the clean stage.",
+  "country",       "TEXT",       "",  "✓",          "Nearest country. Reserved but EMPTY: filled at the clean stage.",
+  "country_code",  "TEXT",       "",  "✓",          "ISO 3166-1 alpha-3 code of the nearest country (e.g. NOR). Reserved but EMPTY: filled at the clean stage.",
+  "municipality",  "TEXT",       "",  "✓",          "Nearest municipality, Europe only. Reserved but EMPTY: filled at the clean stage.",
+  "sea_name",      "TEXT",       "",  "✓",          "Sea or ocean name. Reserved but EMPTY: filled at the clean stage."
 )
 
 site_tbl
