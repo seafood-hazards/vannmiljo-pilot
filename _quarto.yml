@@ -28,7 +28,8 @@ website:
           - text: "Sediment Fractions"
             href: sediment-fractions.qmd
           - text: "Database Downloads"
-            href: database-downloads.qmd      - text: "EFSA Submission"
+            href: database-downloads.qmd
+      - text: "EFSA Submission"
         menu:
           - text: "EFSA Format v1"
             href: efsa-format.qmd
