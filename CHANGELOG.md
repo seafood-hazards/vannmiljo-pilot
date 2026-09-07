@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 As this project is still in active development, it does not yet strictly adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Home page links to the [multised-summary](https://seafood-hazards.github.io/multised-summary/) site, the plain-English layer over the refined results. `_generations.qmd` gains a paragraph after the generations table saying what it is and what it is not: not a sixth generation, no database of its own, and it computes nothing, since every number on it is read from a file the pipeline wrote
 
 ## [0.1.24] - 2026-08-07
 ### Changed

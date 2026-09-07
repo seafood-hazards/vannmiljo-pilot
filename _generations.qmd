@@ -13,6 +13,12 @@ providers still look like five different databases.
 | 4 | merged  | all five sources in one database, with cross-source duplicates resolved | [multised-merged](https://seafood-hazards.github.io/multised-merged/) |
 | 5 | refined | a mart cut from the merged database for the pristine and background work | [multised-refined](https://seafood-hazards.github.io/multised-refined/) |
 
+Over the five generations sits a plain-English layer, the
+[multised-summary](https://seafood-hazards.github.io/multised-summary/) site: what
+the work found, element by element, written for a reader who will not open the
+analysis sites. It is not a sixth generation and has no database of its own, and it
+computes nothing: every number on it is read from a file the pipeline wrote.
+
 ### Pilot sites
 
 One site per data source, each documenting that provider's own schema and the
