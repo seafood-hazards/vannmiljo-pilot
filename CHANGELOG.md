@@ -6,6 +6,19 @@ As this project is still in active development, it does not yet strictly adhere 
 
 ## [Unreleased]
 
+## [0.1.25] - 2026-09-07
+### Added
+- Home page links to the [multised-summary](https://seafood-hazards.github.io/multised-summary/) site, the plain-English layer over the refined results. `_generations.qmd` gains a paragraph after the generations table saying what it is and what it is not: not a sixth generation, no database of its own, and it computes nothing, since every number on it is read from a file the pipeline wrote
+
+### Changed
+- Browser database cache key is now the first 12 hex characters of the database file's md5, computed at render time, rather than the release tag. The database is re-uploaded onto the existing latest release, so a tag-derived key never moved when the file did, and returning visitors kept serving the previous database out of browser cache
+
+### Removed
+- Distance to Coast, Location Names and Interactive Map pages, and the Geospatial Analysis navbar menu they formed. The pilot stage no longer derives location: clean step 4 recomputes and overwrites all five columns, so the pilot values never reached a later generation. The columns stay in the pilot schema, marked as filled at the clean stage
+
+### Fixed
+- Navbar YAML that the distance-menu removal broke, which failed `quarto render` on every page with an indentation error
+
 ## [0.1.24] - 2026-08-07
 ### Changed
 - **Geospatial columns recomputed with [seastamp](https://github.com/AIQC-Hub/seastamp)**, the tool the whole pipeline now uses, replacing the earlier `sf` / `rnaturalearth` / `giscoR` implementation. Across the 21,300 distinct site positions: `dist_to_coast` moves by a median of 0.02 km, `municipality` is reassigned for 2,629, `sea_name` for 21,287, and `country` for 16
